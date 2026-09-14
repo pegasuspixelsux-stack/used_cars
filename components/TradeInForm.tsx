@@ -155,7 +155,7 @@ export default function TradeInForm() {
                 aria-pressed={condition === option}
                 className={
                   condition === option
-                    ? "rounded-full bg-champagne-400 px-4 py-2 text-sm font-medium text-obsidian-950 transition-transform active:scale-[0.97]"
+                    ? "rounded-full bg-champagne-400 px-4 py-2 text-sm font-medium text-black transition-transform active:scale-[0.97]"
                     : "rounded-full border border-hairline px-4 py-2 text-sm text-ink-300 transition-colors hover:border-hairline-strong hover:text-ink-100 active:scale-[0.97]"
                 }
               >
@@ -263,7 +263,7 @@ export default function TradeInForm() {
         <button
           type="submit"
           disabled={status !== "idle"}
-          className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-champagne-400 py-3.5 text-[0.9375rem] font-medium text-obsidian-950 transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] disabled:active:scale-100"
+          className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-champagne-400 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] disabled:active:scale-100"
         >
           {status === "idle" && "Obtener tasación instantánea"}
           {status === "loading" && (

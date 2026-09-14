@@ -95,7 +95,7 @@ export default function FinancingCalculator() {
                 aria-pressed={termMonths === months}
                 className={
                   termMonths === months
-                    ? "rounded-full bg-champagne-400 px-4 py-2 text-sm font-medium text-obsidian-950 transition-transform active:scale-[0.97]"
+                    ? "rounded-full bg-champagne-400 px-4 py-2 text-sm font-medium text-black transition-transform active:scale-[0.97]"
                     : "rounded-full border border-hairline px-4 py-2 text-sm text-ink-300 transition-colors hover:border-hairline-strong hover:text-ink-100 active:scale-[0.97]"
                 }
               >

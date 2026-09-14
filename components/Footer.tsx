@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Check, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Inventario", href: "#inventory" },
@@ -95,7 +96,7 @@ export default function Footer() {
                   type="submit"
                   disabled={subscribed}
                   aria-label="Suscribirse"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-champagne-400 text-obsidian-950 transition-transform duration-150 active:scale-90 disabled:opacity-90"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-champagne-400 text-black transition-transform duration-150 active:scale-90 disabled:opacity-90"
                 >
                   {subscribed ? <Check size={16} /> : <ArrowRight size={16} />}
                 </button>
@@ -104,7 +105,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-hairline pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center gap-6 border-t border-hairline pt-8 sm:flex-row sm:justify-between sm:gap-4">
           <p className="text-sm text-ink-600">
             © {new Date().getFullYear()} Aero Motors. Todos los derechos
             reservados.
@@ -121,6 +122,7 @@ export default function Footer() {
               </li>
             ))}
           </ul>
+          <ThemeToggle label="Modo claro" />
         </div>
       </div>
     </footer>

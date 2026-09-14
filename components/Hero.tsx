@@ -31,11 +31,11 @@ export default function Hero({ vehicle }: { vehicle: Vehicle }) {
       {/* Multi-stop overlay: strong from the left where the copy sits, fading toward the image on the right. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/90 via-obsidian-950/65 to-obsidian-950/10"
+        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/9 via-obsidian-950/7 to-obsidian-950/1"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/80 via-transparent to-obsidian-950/20"
+        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/8 via-transparent to-obsidian-950/2"
       />
 
       <div className="relative mx-auto w-full max-w-7xl px-4 pt-28 pb-16 sm:px-6 sm:pt-32 lg:px-8">
@@ -43,15 +43,15 @@ export default function Hero({ vehicle }: { vehicle: Vehicle }) {
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-xl"
+          className="max-w-3xl"
         >
-          <h1 className="text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.02em] text-ink-100 sm:text-6xl lg:text-[4rem]">
+          <h1 className="text-[2rem] font-semibold leading-[1.1] tracking-[-0.02em] text-white sm:text-6xl sm:leading-[1.05] lg:text-[4rem]">
             Autos certificados,
             <br />
-            listos para manejar hoy.
+            listos para conducir.
           </h1>
 
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-300">
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-white/80">
             Precio transparente, inspección mecánica completa y la
             confianza de un concesionario que conoce el mercado local.
           </p>
@@ -59,13 +59,13 @@ export default function Hero({ vehicle }: { vehicle: Vehicle }) {
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="#inventory"
-              className="inline-flex items-center rounded-full bg-champagne-400 px-6 py-3.5 text-[0.9375rem] font-medium text-obsidian-950 transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97]"
+              className="inline-flex items-center rounded-full bg-champagne-400 px-6 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97]"
             >
               Ver inventario
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center rounded-full border border-ink-100/30 px-6 py-3.5 text-[0.9375rem] font-medium text-ink-100 transition-colors duration-200 hover:bg-obsidian-950/40 active:scale-[0.97]"
+              className="inline-flex items-center rounded-full border border-white/30 px-6 py-3.5 text-[0.9375rem] font-medium text-white transition-colors duration-200 hover:bg-white/10 active:scale-[0.97]"
             >
               Solicitar cotización
             </a>

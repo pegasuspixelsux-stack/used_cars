@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useTheme } from "next-themes";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Inventario", href: "#inventory" },
@@ -13,12 +15,21 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
+  const { resolvedTheme } = useTheme();
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration guard
+  useEffect(() => setMounted(true), []);
+  const isLight = mounted && resolvedTheme === "light";
 
   // Frosted bar intensifies as the page scrolls, instead of snapping between two states.
-  const background = useTransform(scrollY, [0, 80], ["rgba(10, 11, 13, 0.35)", "rgba(10, 11, 13, 0.82)"]);
-  const borderColor = useTransform(scrollY, [0, 80], ["rgba(244, 245, 247, 0)", "rgba(244, 245, 247, 0.08)"]);
+  // Base tints track the current theme's page background / primary text hue.
+  const baseRgb = isLight ? "250, 250, 248" : "10, 11, 13";
+  const lineRgb = isLight ? "20, 22, 26" : "244, 245, 247";
+  const background = useTransform(scrollY, [0, 80], [`rgba(${baseRgb}, 0.35)`, `rgba(${baseRgb}, 0.82)`]);
+  const borderColor = useTransform(scrollY, [0, 80], [`rgba(${lineRgb}, 0)`, `rgba(${lineRgb}, 0.08)`]);
 
   return (
     <motion.header
@@ -48,24 +59,28 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-4 md:flex">
+          <ThemeToggle />
           <a
             href="#contact"
-            className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-obsidian-950 transition-transform duration-150 ease-out hover:bg-champagne-300 active:scale-[0.97]"
+            className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-black transition-transform duration-150 ease-out hover:bg-champagne-300 active:scale-[0.97]"
           >
             Coordinar una consulta
           </a>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setMobileOpen((open) => !open)}
-          className="flex items-center justify-center rounded-full border border-hairline p-2.5 text-ink-100 md:hidden"
-          aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-3 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
+            className="flex items-center justify-center rounded-full border border-hairline p-2.5 text-ink-100"
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </nav>
 
       <AnimatePresence>
@@ -93,7 +108,7 @@ export default function Navbar() {
                 <a
                   href="#contact"
                   onClick={() => setMobileOpen(false)}
-                  className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-obsidian-950 active:scale-[0.97]"
+                  className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-black active:scale-[0.97]"
                 >
                   Coordinar una consulta
                 </a>

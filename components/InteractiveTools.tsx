@@ -57,7 +57,7 @@ export default function InteractiveTools() {
                 <span
                   className={
                     isActive
-                      ? "relative z-10 flex items-center gap-2 text-obsidian-950"
+                      ? "relative z-10 flex items-center gap-2 text-black"
                       : "relative z-10 flex items-center gap-2 text-ink-300"
                   }
                 >

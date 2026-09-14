@@ -33,6 +33,31 @@
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+/*
+ * Light theme — same token names, inverted values. Components never
+ * reference raw hex; they read these custom properties through the
+ * Tailwind utilities below, so the whole site re-themes from here.
+ */
+:root[data-theme="light"] {
+  --obsidian-950: #fafaf8;
+  --obsidian-900: #ffffff;
+  --obsidian-850: #f2f1ed;
+  --obsidian-800: #ecebe6;
+  --obsidian-700: #dedcd5;
+
+  --ink-100: #14161a;
+  --ink-300: #40434a;
+  --ink-400: #6b6f76;
+  --ink-600: #9aa1ac;
+
+  --champagne-300: #c2984f;
+  --champagne-400: #a8823f;
+  --champagne-500: #8a6a30;
+
+  --hairline: rgba(20, 22, 26, 0.08);
+  --hairline-strong: rgba(20, 22, 26, 0.14);
+}
+
 @theme inline {
   --color-obsidian-950: var(--obsidian-950);
   --color-obsidian-900: var(--obsidian-900);
@@ -68,11 +93,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 ::selection {
   background: var(--champagne-400);
-  color: var(--obsidian-950);
+  /* Always dark: the accent stays a mid-tone gold in both themes. */
+  color: #000;
 }
 
 :focus-visible {
