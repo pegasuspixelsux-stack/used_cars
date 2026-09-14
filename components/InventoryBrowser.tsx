@@ -43,8 +43,22 @@ const inputClass =
 const selectClass =
   "w-full appearance-none rounded-xl border border-hairline bg-obsidian-950 px-3.5 py-2.5 text-sm text-ink-100 outline-none transition-colors focus:border-champagne-400";
 
-export default function InventoryBrowser({ cars }: { cars: PublicCar[] }) {
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+type InitialFilters = { year?: string; make?: string; model?: string };
+
+export default function InventoryBrowser({
+  cars,
+  initialFilters,
+}: {
+  cars: PublicCar[];
+  initialFilters?: InitialFilters;
+}) {
+  const [filters, setFilters] = useState<Filters>(() => ({
+    ...EMPTY_FILTERS,
+    make: initialFilters?.make || ALL,
+    model: initialFilters?.model || ALL,
+    minYear: initialFilters?.year || "",
+    maxYear: initialFilters?.year || "",
+  }));
   const [page, setPage] = useState(1);
 
   const makes = useMemo(() => Array.from(new Set(cars.map((car) => car.make))).sort(), [cars]);

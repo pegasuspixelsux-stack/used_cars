@@ -59,4 +59,7 @@ export interface SiteSettings {
   contactImageDark: string;
   contactImageLightPath: string;
   contactImageDarkPath: string;
+  /** Toggles components/HeroFilterBar.tsx (the year/make/model search card
+   *  floating over the hero's bottom edge) on the homepage. */
+  showHeroSearch: boolean;
 }
