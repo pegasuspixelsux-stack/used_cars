@@ -36,13 +36,7 @@ export default function CarCard({ car }: { car: PublicCar }) {
           {car.year} · {car.color}
         </p>
 
-        <p className="mt-4 font-mono text-2xl font-bold text-ink-100">
-          {formatPriceUsd(estimatedPayment)}
-          <span className="ml-1 text-sm font-normal text-ink-400">/mes</span>
-        </p>
-        <p className="mt-0.5 text-sm text-ink-400">{formatPriceUsd(car.price)} total</p>
-
-        <ul className="mt-5 flex flex-wrap gap-2">
+        <ul className="mt-4 flex flex-wrap gap-2">
           <li className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-3 py-1.5 text-xs text-ink-300">
             <SPEC_ICONS.mileage size={14} strokeWidth={1.75} className="text-champagne-400" />
             {formatMileage(car.mileage)}
@@ -56,6 +50,12 @@ export default function CarCard({ car }: { car: PublicCar }) {
             {car.fuelType}
           </li>
         </ul>
+
+        <p className="mt-5 font-mono text-2xl font-bold text-ink-100">
+          {formatPriceUsd(estimatedPayment)}
+          <span className="ml-1 text-sm font-normal text-ink-400">/mes</span>
+        </p>
+        <p className="mt-0.5 text-sm text-ink-400">{formatPriceUsd(car.price)} total</p>
 
         <p className="mt-4 text-[11px] leading-snug text-ink-600">{FINANCING_DISCLAIMER}</p>
 
