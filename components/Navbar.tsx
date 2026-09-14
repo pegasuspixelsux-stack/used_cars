@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
+import { splitLogoText } from "@/lib/format";
 import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
-  { label: "Inventario", href: "#inventory" },
+  { label: "Inicio", href: "/" },
+  { label: "Inventario", href: "/inventory" },
   { label: "Por qué elegirnos", href: "#why-us" },
   { label: "Servicios", href: "#why-us" },
   { label: "Contacto", href: "#contact" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ logoText }: { logoText: string }) {
+  const [logoFirst, logoRest] = splitLogoText(logoText);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -41,20 +45,20 @@ export default function Navbar() {
       }}
     >
       <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 sm:px-10 lg:px-16">
-        <a href="#" className="flex items-baseline gap-1.5 leading-none">
-          <span className="text-lg font-semibold tracking-tight text-ink-100">AERO</span>
-          <span className="text-lg font-normal tracking-tight text-ink-400">MOTORS</span>
-        </a>
+        <Link href="/" className="flex items-baseline gap-1.5 leading-none">
+          <span className="text-lg font-semibold tracking-tight text-ink-100">{logoFirst}</span>
+          {logoRest && <span className="text-lg font-normal tracking-tight text-ink-400">{logoRest}</span>}
+        </Link>
 
         <ul className="hidden items-center gap-9 md:flex">
           {NAV_LINKS.map((link) => (
             <li key={link.label}>
-              <a
+              <Link
                 href={link.href}
                 className="text-[0.9375rem] text-ink-300 transition-colors duration-200 hover:text-ink-100"
               >
                 {link.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -95,13 +99,13 @@ export default function Navbar() {
             <ul className="flex flex-col gap-1 px-6 py-4 sm:px-10">
               {NAV_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className="block py-2.5 text-base text-ink-300 transition-colors hover:text-ink-100"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
               <li className="pt-2">

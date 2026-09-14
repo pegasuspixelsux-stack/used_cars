@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ImageOff } from "lucide-react";
-import AddVehicleForm from "@/components/AddVehicleForm";
-import DeleteVehicleButton from "@/components/DeleteVehicleButton";
+import AddCarModal from "@/components/AddCarModal";
+import DeleteCarButton from "@/components/DeleteCarButton";
 import { formatPriceUsd } from "@/lib/format";
 import { getAllVehicles } from "@/lib/dashboard-data";
 
@@ -10,35 +10,37 @@ export const metadata = {
 };
 
 export default async function InventoryPage() {
-  const vehicles = await getAllVehicles();
+  const cars = await getAllVehicles();
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-ink-100">Inventario de Autos</h1>
-      <p className="mt-1 text-sm text-ink-400">
-        {vehicles.length} {vehicles.length === 1 ? "auto cargado" : "autos cargados"} en Firestore.
-      </p>
-
-      <div className="mt-8">
-        <AddVehicleForm />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink-100">Inventario de Autos</h1>
+          <p className="mt-1 text-sm text-ink-400">
+            {cars.length} {cars.length === 1 ? "auto cargado" : "autos cargados"} — visibles en el
+            sitio público.
+          </p>
+        </div>
+        <AddCarModal />
       </div>
 
       <div className="mt-8 space-y-3">
-        {vehicles.length === 0 && (
+        {cars.length === 0 && (
           <p className="rounded-2xl border border-hairline bg-obsidian-900 p-6 text-sm text-ink-400">
             Todavía no hay autos cargados.
           </p>
         )}
-        {vehicles.map((vehicle) => (
+        {cars.map((car) => (
           <div
-            key={vehicle.id}
+            key={car.id}
             className="flex items-center gap-4 rounded-2xl border border-hairline bg-obsidian-900 p-4"
           >
             <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-obsidian-800">
-              {vehicle.imageUrl ? (
+              {car.image ? (
                 <Image
-                  src={vehicle.imageUrl}
-                  alt={`${vehicle.make} ${vehicle.model}`}
+                  src={car.image}
+                  alt={`${car.make} ${car.model}`}
                   fill
                   sizes="96px"
                   className="object-cover"
@@ -51,11 +53,12 @@ export default async function InventoryPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-ink-100">
-                {vehicle.make} {vehicle.model} · {vehicle.year}
+                {car.make} {car.model} · {car.year}
+                {car.featured && <span className="ml-2 text-xs text-champagne-400">Destacado</span>}
               </p>
-              <p className="font-mono text-sm text-ink-400">{formatPriceUsd(vehicle.priceUsd)}</p>
+              <p className="font-mono text-sm text-ink-400">{formatPriceUsd(car.price)}</p>
             </div>
-            <DeleteVehicleButton id={vehicle.id} imagePath={vehicle.imagePath} />
+            <DeleteCarButton id={car.id} imagePaths={car.imagePaths} />
           </div>
         ))}
       </div>

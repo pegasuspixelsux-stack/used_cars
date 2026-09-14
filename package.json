@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:cars": "node --env-file=.env.local scripts/seedCars.mts"
   },
   "dependencies": {
     "firebase": "^12.19.0",

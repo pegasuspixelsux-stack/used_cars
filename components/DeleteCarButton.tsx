@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
-import { deleteVehicle } from "@/app/dashboard/inventario/actions";
+import { deleteCar } from "@/app/dashboard/inventario/actions";
 
-export default function DeleteVehicleButton({ id, imagePath }: { id: string; imagePath?: string }) {
+export default function DeleteCarButton({ id, imagePaths }: { id: string; imagePaths?: string[] }) {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function handleDelete() {
     if (pending) return;
     if (!window.confirm("¿Eliminar este auto del inventario?")) return;
     setPending(true);
-    await deleteVehicle(id, imagePath);
+    await deleteCar(id, imagePaths);
+    router.refresh();
     setPending(false);
   }
 

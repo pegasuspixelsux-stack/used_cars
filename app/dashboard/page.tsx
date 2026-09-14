@@ -63,9 +63,9 @@ export default async function DashboardOverviewPage() {
                 className="flex items-center gap-4 rounded-2xl border border-hairline bg-obsidian-900 p-4"
               >
                 <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl bg-obsidian-800">
-                  {vehicle.imageUrl ? (
+                  {vehicle.image ? (
                     <Image
-                      src={vehicle.imageUrl}
+                      src={vehicle.image}
                       alt={`${vehicle.make} ${vehicle.model}`}
                       fill
                       sizes="80px"
@@ -82,7 +82,7 @@ export default async function DashboardOverviewPage() {
                     {vehicle.make} {vehicle.model} · {vehicle.year}
                   </p>
                   <p className="font-mono text-sm text-ink-400">
-                    {formatPriceUsd(vehicle.priceUsd)}
+                    {formatPriceUsd(vehicle.price)}
                   </p>
                 </div>
               </div>

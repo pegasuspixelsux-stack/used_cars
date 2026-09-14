@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import CarCard from "./CarCard";
-import type { Vehicle } from "@/lib/types";
+import type { PublicCar } from "@/lib/types";
 
 const container: Variants = {
   hidden: {},
@@ -14,7 +14,7 @@ const item: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
-export default function CarGrid({ vehicles }: { vehicles: Vehicle[] }) {
+export default function CarGrid({ cars }: { cars: PublicCar[] }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -25,9 +25,9 @@ export default function CarGrid({ vehicles }: { vehicles: Vehicle[] }) {
       variants={container}
       className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
-      {vehicles.map((vehicle) => (
-        <motion.li key={vehicle.id} variants={item}>
-          <CarCard vehicle={vehicle} />
+      {cars.map((car) => (
+        <motion.li key={car.id} variants={item}>
+          <CarCard car={car} />
         </motion.li>
       ))}
     </motion.ul>
