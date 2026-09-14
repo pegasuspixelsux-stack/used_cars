@@ -2,43 +2,58 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { ShieldCheck, BadgeCheck, Truck, FileCheck } from "lucide-react";
-import { formatPriceUsd } from "@/lib/format";
+import { Users, BadgeCheck, Truck, ShieldCheck } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 
-const BADGES = [
-  { icon: ShieldCheck, label: "Historial verificado" },
-  { icon: BadgeCheck, label: "Precio transparente" },
-  { icon: Truck, label: "Entrega a domicilio" },
-  { icon: FileCheck, label: "Garantía incluida" },
+const STATS = [
+  { icon: Users, label: "+500 clientes" },
+  { icon: BadgeCheck, label: "100% transparente" },
+  { icon: Truck, label: "Entrega en 20–30 días" },
+  { icon: ShieldCheck, label: "3 años de garantía" },
 ];
 
 export default function Hero({ vehicle }: { vehicle: Vehicle }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden pt-36 pb-24 sm:pt-44 sm:pb-32">
+    <section className="relative flex min-h-[88vh] w-full items-center overflow-hidden bg-obsidian-950">
+      <div className="absolute inset-0">
+        <Image
+          src={vehicle.image.src}
+          alt={vehicle.image.alt}
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+          preload
+        />
+      </div>
+
+      {/* Multi-stop overlay: strong from the left where the copy sits, fading toward the image on the right. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-40 top-0 h-[36rem] w-[36rem] rounded-full bg-champagne-400/10 blur-[120px]"
+        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/90 via-obsidian-950/65 to-obsidian-950/10"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/80 via-transparent to-obsidian-950/20"
       />
 
-      <div className="mx-auto grid max-w-[1400px] gap-16 px-6 sm:px-10 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-12 lg:px-16">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pt-28 pb-16 sm:px-6 sm:pt-32 lg:px-8">
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-xl"
         >
           <h1 className="text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.02em] text-ink-100 sm:text-6xl lg:text-[4rem]">
-            Autos excepcionales,
-            <br />a su medida.
+            Vehículos premium,
+            <br />
+            importados a su pedido.
           </h1>
 
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-400">
-            En Aero Motors seleccionamos y certificamos vehículos premium
-            usados para Punta del Este y el resto del país: cada auto pasa
-            por una inspección independiente y cada precio se muestra
-            completo, sin que usted tenga que preguntar.
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-300">
+            Precio transparente, acompañamiento de punta a punta y garantía
+            en cada vehículo que llega a sus manos.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -50,61 +65,29 @@ export default function Hero({ vehicle }: { vehicle: Vehicle }) {
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center rounded-full border border-hairline-strong px-6 py-3.5 text-[0.9375rem] font-medium text-ink-100 transition-colors duration-200 hover:bg-obsidian-800 active:scale-[0.97]"
+              className="inline-flex items-center rounded-full border border-ink-100/30 px-6 py-3.5 text-[0.9375rem] font-medium text-ink-100 transition-colors duration-200 hover:bg-obsidian-950/40 active:scale-[0.97]"
             >
-              Coordinar una consulta
+              Solicitar cotización
             </a>
           </div>
-
-          <motion.ul
-            initial={shouldReduceMotion ? undefined : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-16 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4"
-          >
-            {BADGES.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-2.5">
-                <Icon size={18} className="shrink-0 text-champagne-400" strokeWidth={1.75} />
-                <span className="text-sm text-ink-400">{label}</span>
-              </li>
-            ))}
-          </motion.ul>
         </motion.div>
 
-        <motion.div
-          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 40, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", bounce: 0.18, duration: 0.9, delay: 0.15 }}
-          className="relative"
+        <motion.ul
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-16 grid grid-cols-2 gap-3 sm:mt-20 sm:flex sm:flex-wrap sm:gap-4"
         >
-          <div className="relative overflow-hidden rounded-[1.75rem] border border-hairline bg-obsidian-900 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.7)]">
-            <div className="relative aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5]">
-              <Image
-                src={vehicle.image.src}
-                alt={vehicle.image.alt}
-                fill
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-cover"
-                preload
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/70 via-transparent to-transparent" />
-            </div>
-
-            <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl border border-hairline bg-obsidian-950/60 px-5 py-4 backdrop-blur-md">
-              <div>
-                <p className="text-sm text-ink-400">
-                  {vehicle.year} {vehicle.make} {vehicle.model}
-                </p>
-                <p className="mt-0.5 font-mono text-lg text-ink-100">
-                  {formatPriceUsd(vehicle.priceUsd)}
-                </p>
-              </div>
-              <span className="rounded-full border border-champagne-400/40 px-3 py-1 text-xs text-champagne-300">
-                Destacado
-              </span>
-            </div>
-          </div>
-        </motion.div>
+          {STATS.map(({ icon: Icon, label }) => (
+            <li
+              key={label}
+              className="flex items-center gap-2.5 rounded-2xl border border-hairline bg-obsidian-950/40 px-4 py-3 backdrop-blur-md sm:px-5"
+            >
+              <Icon size={18} className="shrink-0 text-champagne-400" strokeWidth={1.75} />
+              <span className="text-sm text-ink-100">{label}</span>
+            </li>
+          ))}
+        </motion.ul>
       </div>
     </section>
   );

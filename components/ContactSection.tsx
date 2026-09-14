@@ -1,23 +1,15 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
-import { MapPin, Phone, Mail, MessageCircle, Clock, Check, Loader2 } from "lucide-react";
-import { inventory } from "@/lib/vehicles";
+import Image from "next/image";
+import { Check, Loader2 } from "lucide-react";
 
 type SubmitState = "idle" | "loading" | "success";
 
-const CHANNELS = [
-  { icon: MapPin, label: "Ruta 10, Km 161, Punta del Este, Uruguay" },
-  { icon: Phone, label: "+598 4249 1122" },
-  { icon: MessageCircle, label: "+598 99 123 456 (WhatsApp)" },
-  { icon: Mail, label: "hola@aeromotors.uy" },
-];
-
-const HOURS = [
-  { day: "Lunes a viernes", time: "10:00 – 19:00" },
-  { day: "Sábado", time: "10:00 – 15:00" },
-  { day: "Domingo", time: "Con cita previa" },
-];
+const BACKGROUND_IMAGE = {
+  src: "https://images.unsplash.com/photo-1717347424087-842a99131d8e",
+  alt: "Auto deportivo blanco estacionado en un garage",
+};
 
 export default function ContactSection() {
   const [status, setStatus] = useState<SubmitState>("idle");
@@ -33,46 +25,38 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="contact" className="py-24 sm:py-32">
-      <div className="mx-auto grid max-w-[1400px] gap-16 px-6 sm:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:px-16">
+    <section id="contact" className="relative w-full overflow-hidden py-24 sm:py-32">
+      <div className="absolute inset-0">
+        <Image
+          src={BACKGROUND_IMAGE.src}
+          alt={BACKGROUND_IMAGE.alt}
+          fill
+          sizes="100vw"
+          quality={60}
+          className="object-cover object-center"
+        />
+      </div>
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-b from-obsidian-950/60 via-obsidian-950/40 to-obsidian-950/60"
+      />
+
+      <div className="relative z-10 mx-auto grid max-w-[1400px] gap-12 px-6 sm:px-10 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-16">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight text-ink-100 sm:text-4xl">
-            Visite el showroom
+            ¿Listo para encontrar su próximo auto?
+            <br />
+            Hablemos.
           </h2>
-          <p className="mt-4 max-w-sm text-ink-400">
-            Hable directamente con un especialista, o déjenos sus datos y
-            nos comunicaremos dentro de un día hábil.
+          <p className="mt-4 max-w-sm text-ink-300">
+            Cuéntenos qué está buscando y le respondemos dentro de un día
+            hábil.
           </p>
-
-          <ul className="mt-10 space-y-4">
-            {CHANNELS.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-3.5 text-ink-300">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline">
-                  <Icon size={17} strokeWidth={1.75} className="text-champagne-400" />
-                </span>
-                <span className="text-[0.9375rem]">{label}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-10 flex items-center gap-3.5 border-t border-hairline pt-8">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline">
-              <Clock size={17} strokeWidth={1.75} className="text-champagne-400" />
-            </span>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-[0.9375rem]">
-              {HOURS.map(({ day, time }) => (
-                <div key={day} className="contents">
-                  <dt className="text-ink-400">{day}</dt>
-                  <dd className="text-ink-300">{time}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-3xl border border-hairline bg-obsidian-900 p-6 sm:p-8"
+          className="rounded-3xl border border-hairline bg-obsidian-950/60 p-6 backdrop-blur-md sm:p-8 lg:ml-auto lg:w-full lg:max-w-md"
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Nombre completo" htmlFor="name">
@@ -82,7 +66,7 @@ export default function ContactSection() {
                 type="text"
                 required
                 autoComplete="name"
-                className="w-full rounded-xl border border-hairline bg-obsidian-950 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
+                className="w-full rounded-xl border border-hairline bg-obsidian-950/90 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
                 placeholder="Juana Pérez"
               />
             </Field>
@@ -93,30 +77,23 @@ export default function ContactSection() {
                 type="tel"
                 required
                 autoComplete="tel"
-                className="w-full rounded-xl border border-hairline bg-obsidian-950 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
+                className="w-full rounded-xl border border-hairline bg-obsidian-950/90 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
                 placeholder="+598 99 123 456"
               />
             </Field>
           </div>
 
           <div className="mt-5">
-            <Field label="Vehículo de interés" htmlFor="vehicle">
-              <select
-                id="vehicle"
-                name="vehicle"
-                defaultValue=""
-                className="w-full appearance-none rounded-xl border border-hairline bg-obsidian-950 px-4 py-3 text-ink-100 outline-none transition-colors focus:border-champagne-400"
-              >
-                <option value="" disabled>
-                  Seleccione un modelo
-                </option>
-                {inventory.map((vehicle) => (
-                  <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.make} {vehicle.model} ({vehicle.year})
-                  </option>
-                ))}
-                <option value="other">Otro</option>
-              </select>
+            <Field label="Correo electrónico" htmlFor="email">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                className="w-full rounded-xl border border-hairline bg-obsidian-950/90 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
+                placeholder="usted@email.com"
+              />
             </Field>
           </div>
 
@@ -126,7 +103,8 @@ export default function ContactSection() {
                 id="message"
                 name="message"
                 rows={4}
-                className="w-full resize-none rounded-xl border border-hairline bg-obsidian-950 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
+                required
+                className="w-full resize-none rounded-xl border border-hairline bg-obsidian-950/90 px-4 py-3 text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400"
                 placeholder="Cuéntenos qué está buscando…"
               />
             </Field>
@@ -168,7 +146,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 block text-sm text-ink-400">
+      <label htmlFor={htmlFor} className="mb-2 block text-sm text-ink-300">
         {label}
       </label>
       {children}

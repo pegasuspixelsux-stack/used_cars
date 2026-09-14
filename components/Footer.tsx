@@ -1,18 +1,26 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Inventario", href: "#inventory" },
+  { label: "Financiación", href: "#tools" },
+  { label: "Cotizar mi usado", href: "#tools" },
   { label: "Por qué elegirnos", href: "#why-us" },
-  { label: "Contacto", href: "#contact" },
 ];
 
 const LEGAL_LINKS = [
   { label: "Términos del servicio", href: "#" },
   { label: "Política de privacidad", href: "#" },
   { label: "Términos de garantía", href: "#" },
+];
+
+const CHANNELS = [
+  { icon: MapPin, label: "Ruta 10, Km 161, Punta del Este, Uruguay" },
+  { icon: Phone, label: "+598 4249 1122" },
+  { icon: MessageCircle, label: "+598 99 123 456 (WhatsApp)" },
+  { icon: Mail, label: "hola@aeromotors.uy" },
 ];
 
 export default function Footer() {
@@ -37,10 +45,6 @@ export default function Footer() {
               Punta del Este, con total transparencia desde la inspección
               hasta la entrega.
             </p>
-            <p className="mt-8 text-sm text-ink-600">
-              © {new Date().getFullYear()} Aero Motors. Todos los derechos
-              reservados.
-            </p>
           </div>
 
           <div>
@@ -60,16 +64,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-ink-100">Legal y soporte</h3>
+            <h3 className="text-sm font-medium text-ink-100">Contacto</h3>
             <ul className="mt-5 space-y-3">
-              {LEGAL_LINKS.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-ink-400 transition-colors hover:text-ink-100"
-                  >
-                    {link.label}
-                  </a>
+              {CHANNELS.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-start gap-2.5 text-sm text-ink-400">
+                  <Icon size={15} strokeWidth={1.75} className="mt-0.5 shrink-0 text-champagne-400" />
+                  <span>{label}</span>
                 </li>
               ))}
             </ul>
@@ -102,6 +102,25 @@ export default function Footer() {
               </div>
             </form>
           </div>
+        </div>
+
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-hairline pt-8 sm:flex-row">
+          <p className="text-sm text-ink-600">
+            © {new Date().getFullYear()} Aero Motors. Todos los derechos
+            reservados.
+          </p>
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  className="text-sm text-ink-400 transition-colors hover:text-ink-100"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>
