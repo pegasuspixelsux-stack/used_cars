@@ -13,6 +13,10 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   heroImageDark: "",
   heroImageLightPath: "",
   heroImageDarkPath: "",
+  contactImageLight: "",
+  contactImageDark: "",
+  contactImageLightPath: "",
+  contactImageDarkPath: "",
 };
 
 /**
@@ -40,6 +44,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       heroImageDark: (data.heroImageDark as string) || "",
       heroImageLightPath: (data.heroImageLightPath as string) || "",
       heroImageDarkPath: (data.heroImageDarkPath as string) || "",
+      contactImageLight: (data.contactImageLight as string) || "",
+      contactImageDark: (data.contactImageDark as string) || "",
+      contactImageLightPath: (data.contactImageLightPath as string) || "",
+      contactImageDarkPath: (data.contactImageDarkPath as string) || "",
     };
   } catch (error) {
     console.error("getSiteSettings: could not read Firestore, using defaults", error);

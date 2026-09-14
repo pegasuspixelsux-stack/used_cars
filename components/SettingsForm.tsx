@@ -3,17 +3,25 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes, type FirebaseStorage } from "firebase/storage";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Check, ImagePlus, Loader2 } from "lucide-react";
 import { getFirebaseAuth, getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
 import type { SiteSettings } from "@/lib/types";
 
 type Status = "idle" | "uploading" | "saving" | "success" | "error";
-type HeroTheme = "light" | "dark";
+type ImageGroup = "hero" | "contact";
+type ImageTheme = "light" | "dark";
 
 const inputClass =
   "w-full rounded-xl border border-hairline bg-obsidian-950 px-4 py-2.5 text-sm text-ink-100 outline-none transition-colors placeholder:text-ink-600 focus:border-champagne-400";
+
+function emptyImageState<T>(value: (group: ImageGroup, theme: ImageTheme) => T): Record<ImageGroup, Record<ImageTheme, T>> {
+  return {
+    hero: { light: value("hero", "light"), dark: value("hero", "dark") },
+    contact: { light: value("contact", "light"), dark: value("contact", "dark") },
+  };
+}
 
 export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
@@ -28,11 +36,21 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [address, setAddress] = useState(settings.address);
   const [hours, setHours] = useState(settings.hours);
 
-  const [heroFiles, setHeroFiles] = useState<Record<HeroTheme, File | null>>({ light: null, dark: null });
-  const [heroPreviews, setHeroPreviews] = useState<Record<HeroTheme, string>>({
-    light: settings.heroImageLight,
-    dark: settings.heroImageDark,
-  });
+  const settingsUrl: Record<ImageGroup, Record<ImageTheme, string>> = {
+    hero: { light: settings.heroImageLight, dark: settings.heroImageDark },
+    contact: { light: settings.contactImageLight, dark: settings.contactImageDark },
+  };
+  const settingsPath: Record<ImageGroup, Record<ImageTheme, string>> = {
+    hero: { light: settings.heroImageLightPath, dark: settings.heroImageDarkPath },
+    contact: { light: settings.contactImageLightPath, dark: settings.contactImageDarkPath },
+  };
+
+  const [imageFiles, setImageFiles] = useState<Record<ImageGroup, Record<ImageTheme, File | null>>>(() =>
+    emptyImageState(() => null),
+  );
+  const [imagePreviews, setImagePreviews] = useState<Record<ImageGroup, Record<ImageTheme, string>>>(() =>
+    emptyImageState((group, theme) => settingsUrl[group][theme]),
+  );
 
   // Firebase's client SDK restores a signed-in session from IndexedDB
   // asynchronously — gate submission on it so a fast submit right after
@@ -45,23 +63,50 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
     return unsubscribe;
   }, []);
 
-  function handleHeroFile(theme: HeroTheme, file: File | null) {
+  function handleImageFile(group: ImageGroup, theme: ImageTheme, file: File | null) {
     if (!file || !file.type.startsWith("image/")) return;
-    setHeroFiles((current) => ({ ...current, [theme]: file }));
-    setHeroPreviews((current) => {
-      if (current[theme].startsWith("blob:")) URL.revokeObjectURL(current[theme]);
-      return { ...current, [theme]: URL.createObjectURL(file) };
+    setImageFiles((current) => ({ ...current, [group]: { ...current[group], [theme]: file } }));
+    setImagePreviews((current) => {
+      const previousUrl = current[group][theme];
+      if (previousUrl.startsWith("blob:")) URL.revokeObjectURL(previousUrl);
+      return { ...current, [group]: { ...current[group], [theme]: URL.createObjectURL(file) } };
     });
   }
 
   useEffect(() => {
     return () => {
-      Object.values(heroPreviews).forEach((url) => {
-        if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+      Object.values(imagePreviews).forEach((byTheme) => {
+        Object.values(byTheme).forEach((url) => {
+          if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+        });
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only clean up on unmount
   }, []);
+
+  /** Uploads a replacement image if one was selected, and best-effort
+   *  cleans up the previous file in Storage — a stale upload left behind
+   *  isn't worth failing the save over. Returns the URL/path to persist,
+   *  unchanged if no new file was picked for this slot. */
+  async function uploadImageIfChanged(
+    storage: FirebaseStorage,
+    group: ImageGroup,
+    theme: ImageTheme,
+  ): Promise<{ url: string; path: string }> {
+    const file = imageFiles[group][theme];
+    const currentUrl = settingsUrl[group][theme];
+    const currentPath = settingsPath[group][theme];
+    if (!file) return { url: currentUrl, path: currentPath };
+
+    const path = `settings/${group}-${theme}-${crypto.randomUUID()}-${file.name}`;
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    if (currentPath && currentPath !== path) {
+      deleteObject(ref(storage, currentPath)).catch(() => {});
+    }
+    return { url, path };
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -81,40 +126,28 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
 
     try {
       setError("");
-      let heroImageLight = settings.heroImageLight;
-      let heroImageLightPath = settings.heroImageLightPath;
-      let heroImageDark = settings.heroImageDark;
-      let heroImageDarkPath = settings.heroImageDarkPath;
+      const hasNewFile = (["hero", "contact"] as ImageGroup[]).some((group) =>
+        (["light", "dark"] as ImageTheme[]).some((theme) => imageFiles[group][theme]),
+      );
 
-      if (heroFiles.light || heroFiles.dark) {
+      let hero = settingsUrl.hero;
+      let heroPaths = settingsPath.hero;
+      let contact = settingsUrl.contact;
+      let contactPaths = settingsPath.contact;
+
+      if (hasNewFile) {
         setStatus("uploading");
         const storage = getFirebaseStorage();
 
-        if (heroFiles.light) {
-          const file = heroFiles.light;
-          const path = `settings/hero-light-${crypto.randomUUID()}-${file.name}`;
-          const storageRef = ref(storage, path);
-          await uploadBytes(storageRef, file);
-          heroImageLight = await getDownloadURL(storageRef);
-          // Best-effort cleanup of the previous file — a stale upload left
-          // behind in Storage isn't worth failing the save over.
-          if (settings.heroImageLightPath && settings.heroImageLightPath !== path) {
-            deleteObject(ref(storage, settings.heroImageLightPath)).catch(() => {});
-          }
-          heroImageLightPath = path;
-        }
+        const heroLight = await uploadImageIfChanged(storage, "hero", "light");
+        const heroDark = await uploadImageIfChanged(storage, "hero", "dark");
+        const contactLight = await uploadImageIfChanged(storage, "contact", "light");
+        const contactDark = await uploadImageIfChanged(storage, "contact", "dark");
 
-        if (heroFiles.dark) {
-          const file = heroFiles.dark;
-          const path = `settings/hero-dark-${crypto.randomUUID()}-${file.name}`;
-          const storageRef = ref(storage, path);
-          await uploadBytes(storageRef, file);
-          heroImageDark = await getDownloadURL(storageRef);
-          if (settings.heroImageDarkPath && settings.heroImageDarkPath !== path) {
-            deleteObject(ref(storage, settings.heroImageDarkPath)).catch(() => {});
-          }
-          heroImageDarkPath = path;
-        }
+        hero = { light: heroLight.url, dark: heroDark.url };
+        heroPaths = { light: heroLight.path, dark: heroDark.path };
+        contact = { light: contactLight.url, dark: contactDark.url };
+        contactPaths = { light: contactLight.path, dark: contactDark.path };
       }
 
       setStatus("saving");
@@ -126,10 +159,14 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
           phone: phone.trim(),
           address: address.trim(),
           hours: hours.trim(),
-          heroImageLight,
-          heroImageLightPath,
-          heroImageDark,
-          heroImageDarkPath,
+          heroImageLight: hero.light,
+          heroImageDark: hero.dark,
+          heroImageLightPath: heroPaths.light,
+          heroImageDarkPath: heroPaths.dark,
+          contactImageLight: contact.light,
+          contactImageDark: contact.dark,
+          contactImageLightPath: contactPaths.light,
+          contactImageDarkPath: contactPaths.dark,
           updatedAt: serverTimestamp(),
         },
         { merge: true },
@@ -157,15 +194,36 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         </p>
 
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
-          <HeroImageField
+          <ImageField
             label="Tema oscuro"
-            preview={heroPreviews.dark}
-            onSelect={(file) => handleHeroFile("dark", file)}
+            preview={imagePreviews.hero.dark}
+            onSelect={(file) => handleImageFile("hero", "dark", file)}
           />
-          <HeroImageField
+          <ImageField
             label="Tema claro"
-            preview={heroPreviews.light}
-            onSelect={(file) => handleHeroFile("light", file)}
+            preview={imagePreviews.hero.light}
+            onSelect={(file) => handleImageFile("hero", "light", file)}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium text-ink-100">Imagen de contacto</h2>
+        <p className="mt-1 text-sm text-ink-400">
+          Fondo de la sección de contacto, también según el tema. Si no carga
+          una, se usa una imagen predeterminada.
+        </p>
+
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <ImageField
+            label="Tema oscuro"
+            preview={imagePreviews.contact.dark}
+            onSelect={(file) => handleImageFile("contact", "dark", file)}
+          />
+          <ImageField
+            label="Tema claro"
+            preview={imagePreviews.contact.light}
+            onSelect={(file) => handleImageFile("contact", "light", file)}
           />
         </div>
       </section>
@@ -275,7 +333,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   );
 }
 
-function HeroImageField({
+function ImageField({
   label,
   preview,
   onSelect,

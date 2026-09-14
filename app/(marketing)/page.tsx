@@ -35,7 +35,7 @@ export default async function Home() {
       <Inventory cars={cars.slice(0, 6)} />
       <Advantages />
       <InteractiveTools />
-      <ContactSection />
+      <ContactSection imageLight={settings.contactImageLight} imageDark={settings.contactImageDark} />
     </>
   );
 }
