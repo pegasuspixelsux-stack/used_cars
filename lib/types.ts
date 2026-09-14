@@ -52,4 +52,11 @@ export interface SiteSettings {
    *  file when it's replaced. */
   heroImageLightPath: string;
   heroImageDarkPath: string;
+  /** Same pattern as the hero images above, for the contact section's
+   *  background photo (components/ContactSection.tsx). Empty until the
+   *  admin uploads one; falls back to a stock image. */
+  contactImageLight: string;
+  contactImageDark: string;
+  contactImageLightPath: string;
+  contactImageDarkPath: string;
 }

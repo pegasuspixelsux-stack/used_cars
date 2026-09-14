@@ -1,20 +1,36 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useTheme } from "next-themes";
 import { Check, Loader2 } from "lucide-react";
 import { getFirebaseDb } from "@/lib/firebase";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
-const BACKGROUND_IMAGE = {
-  src: "https://images.unsplash.com/photo-1717347424087-842a99131d8e",
-  alt: "Auto deportivo blanco estacionado en un garage",
-};
+// Fallback when the admin hasn't uploaded a contact image for a theme
+// (app/dashboard/settings/page.tsx) — same stock photo either way.
+const FALLBACK_BACKGROUND_IMAGE =
+  "https://images.unsplash.com/photo-1717347424087-842a99131d8e";
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  imageLight: string;
+  imageDark: string;
+}
+
+export default function ContactSection({ imageLight, imageDark }: ContactSectionProps) {
   const [status, setStatus] = useState<SubmitState>("idle");
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration guard
+  useEffect(() => setMounted(true), []);
+  // Theme resolves client-side only (next-themes) — default to the dark
+  // image before mount, matching this site's default theme, same guard
+  // Navbar.tsx/Hero.tsx use for their own theme-dependent styling.
+  const isLight = mounted && resolvedTheme === "light";
+  const backgroundImage = (isLight ? imageLight : imageDark) || imageDark || imageLight || FALLBACK_BACKGROUND_IMAGE;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,8 +61,8 @@ export default function ContactSection() {
     <section id="contact" className="relative w-full overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0">
         <Image
-          src={BACKGROUND_IMAGE.src}
-          alt={BACKGROUND_IMAGE.alt}
+          src={backgroundImage}
+          alt="Auto en la sala de exhibición de Aero Motors"
           fill
           sizes="100vw"
           quality={60}

@@ -17,7 +17,8 @@ export async function createSession(idToken: string): Promise<{ ok: true } | { o
       value: sessionCookie,
     });
     return { ok: true };
-  } catch {
+  } catch (err) {
+    console.error("createSession failed:", err); // TODO: remove after debugging
     return { ok: false, error: "No se pudo iniciar sesión. Intente nuevamente." };
   }
 }
