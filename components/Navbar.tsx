@@ -11,8 +11,8 @@ import ThemeToggle from "./ThemeToggle";
 const NAV_LINKS = [
   { label: "Inicio", href: "/" },
   { label: "Inventario", href: "/inventory" },
-  { label: "Por qué elegirnos", href: "#why-us" },
-  { label: "Servicios", href: "#why-us" },
+  { label: "Por qué elegirnos", href: "/#why-us" },
+  { label: "Financiación", href: "/#tools" },
   { label: "Contacto", href: "#contact" },
 ];
 
