@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Vehicle photos are uploaded by the dashboard through the Admin SDK
+    // (server-side, bypasses these rules) and served back as public URLs.
+    // No client-side reads or writes are needed yet.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

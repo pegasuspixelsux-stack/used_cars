@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public contact form (components/ContactSection.tsx) writes here directly
+    // with the client SDK. Anyone can create a well-shaped lead; nobody can
+    // read, update, or delete from the client — the dashboard reads/deletes
+    // through the Admin SDK, which always bypasses these rules.
+    match /contacts/{contactId} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'phone', 'email', 'message', 'createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.phone is string
+        && request.resource.data.email is string
+        && request.resource.data.message is string;
+      allow read, update, delete: if false;
+    }
+
+    // Vehicles are only ever written/read by the dashboard through the
+    // Admin SDK (server-side). No client-side access needed.
+    match /vehicles/{vehicleId} {
+      allow read, write: if false;
+    }
+
+    // Default deny for anything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -2,9 +2,11 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { Check, Loader2 } from "lucide-react";
+import { getFirebaseDb } from "@/lib/firebase";
 
-type SubmitState = "idle" | "loading" | "success";
+type SubmitState = "idle" | "loading" | "success" | "error";
 
 const BACKGROUND_IMAGE = {
   src: "https://images.unsplash.com/photo-1717347424087-842a99131d8e",
@@ -14,14 +16,29 @@ const BACKGROUND_IMAGE = {
 export default function ContactSection() {
   const [status, setStatus] = useState<SubmitState>("idle");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status !== "idle") return;
+    if (status === "loading") return;
     setStatus("loading");
-    window.setTimeout(() => {
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      await addDoc(collection(getFirebaseDb(), "contacts"), {
+        name: String(data.get("name") || ""),
+        phone: String(data.get("phone") || ""),
+        email: String(data.get("email") || ""),
+        message: String(data.get("message") || ""),
+        createdAt: serverTimestamp(),
+      });
+      form.reset();
       setStatus("success");
       window.setTimeout(() => setStatus("idle"), 2400);
-    }, 900);
+    } catch {
+      setStatus("error");
+      window.setTimeout(() => setStatus("idle"), 3200);
+    }
   }
 
   return (
@@ -113,7 +130,7 @@ export default function ContactSection() {
           <button
             type="submit"
             disabled={status !== "idle"}
-            className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-champagne-400 py-3.5 text-[0.9375rem] font-medium text-obsidian-950 transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] disabled:active:scale-100"
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-champagne-400 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] disabled:active:scale-100"
           >
             {status === "idle" && "Enviar mensaje"}
             {status === "loading" && (
@@ -128,6 +145,7 @@ export default function ContactSection() {
                 Mensaje enviado
               </>
             )}
+            {status === "error" && "No se pudo enviar. Intente nuevamente."}
           </button>
         </form>
       </div>
