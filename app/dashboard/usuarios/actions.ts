@@ -17,7 +17,8 @@ export async function createUser(
   }
 
   try {
-    await getAdminAuth().createUser({ email, password });
+    const auth = await getAdminAuth();
+    await auth.createUser({ email, password });
   } catch {
     return { ok: false, error: "No se pudo crear el usuario. ¿Ya existe esa cuenta?" };
   }
@@ -31,7 +32,8 @@ export async function deleteUser(uid: string): Promise<void> {
   const claims = await requireSession();
   if (claims.uid === uid) return; // never let an admin delete their own active session
 
-  await getAdminAuth().deleteUser(uid);
+  const auth = await getAdminAuth();
+  await auth.deleteUser(uid);
   revalidatePath("/dashboard/usuarios");
   revalidatePath("/dashboard");
 }
