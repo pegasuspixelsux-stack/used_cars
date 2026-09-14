@@ -10,7 +10,7 @@ import "server-only";
  * only an actual request that needs Firebase fails, with a clear error.
  */
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
-import { getAuth, type Auth } from "firebase-admin/auth";
+import type { Auth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage, type Storage } from "firebase-admin/storage";
 
@@ -46,7 +46,18 @@ function getAdminApp(): App {
   return app;
 }
 
-export function getAdminAuth(): Auth {
+/**
+ * Dynamically imported: firebase-admin/auth transitively pulls in
+ * jwks-rsa -> jose, whose ESM build fails to load under Vercel's
+ * serverless runtime ("ERR_REQUIRE_ESM") the moment the module is merely
+ * imported — regardless of whether any Auth method actually gets called.
+ * A static top-level import would take down every route that uses this
+ * file just for Firestore/Storage (the car detail page, the homepage,
+ * /inventory). Deferring it here means only routes that actually need
+ * Auth (session cookies, user management) pay that cost.
+ */
+export async function getAdminAuth(): Promise<Auth> {
+  const { getAuth } = await import("firebase-admin/auth");
   return getAuth(getAdminApp());
 }
 

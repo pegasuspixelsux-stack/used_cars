@@ -108,12 +108,14 @@ export async function getAllContacts(): Promise<ContactLead[]> {
 }
 
 export async function getUserCount(): Promise<number> {
-  const result = await getAdminAuth().listUsers(1000);
+  const auth = await getAdminAuth();
+  const result = await auth.listUsers(1000);
   return result.users.length;
 }
 
 export async function getAllUsers(): Promise<DashboardUser[]> {
-  const result = await getAdminAuth().listUsers(1000);
+  const auth = await getAdminAuth();
+  const result = await auth.listUsers(1000);
   return result.users.map((user) => ({
     uid: user.uid,
     email: user.email ?? null,

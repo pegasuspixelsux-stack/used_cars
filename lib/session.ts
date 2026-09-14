@@ -17,14 +17,16 @@ export function sessionCookieOptions(maxAgeSeconds: number) {
 
 /** Exchanges a client-side Firebase ID token for a long-lived session cookie value. */
 export async function createSessionCookie(idToken: string): Promise<string> {
-  return getAdminAuth().createSessionCookie(idToken, { expiresIn: SESSION_MAX_AGE_MS });
+  const auth = await getAdminAuth();
+  return auth.createSessionCookie(idToken, { expiresIn: SESSION_MAX_AGE_MS });
 }
 
 /** Verifies a session cookie value server-side. Returns the decoded claims, or null. */
 export async function verifySessionCookie(cookieValue: string | undefined) {
   if (!cookieValue) return null;
   try {
-    return await getAdminAuth().verifySessionCookie(cookieValue, true);
+    const auth = await getAdminAuth();
+    return await auth.verifySessionCookie(cookieValue, true);
   } catch {
     return null;
   }

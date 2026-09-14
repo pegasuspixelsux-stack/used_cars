@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
-import { FileCheck, KeyRound, ShieldCheck, BadgeCheck } from "lucide-react";
+import { FileCheck, KeyRound } from "lucide-react";
 
 const STATS = [
   { icon: FileCheck, label: "Registro local incluido" },
   { icon: KeyRound, label: "Test drive inmediato" },
-  { icon: ShieldCheck, label: "Inspección mecánica completa" },
-  { icon: BadgeCheck, label: "Precio transparente" },
 ];
 
 interface HeroProps {
