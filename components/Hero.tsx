@@ -35,7 +35,7 @@ export default function Hero({ imageLight, imageDark, imageAlt, whatsappNumber }
   const imageSrc = (isLight ? imageLight : imageDark) || imageDark || imageLight;
 
   return (
-    <section className="relative flex min-h-[88vh] w-full items-center overflow-hidden bg-obsidian-950">
+    <section className="relative flex min-h-[88vh] w-full items-end overflow-hidden bg-obsidian-950 sm:items-center">
       <div className="absolute inset-0">
         <Image
           src={imageSrc}
@@ -47,17 +47,19 @@ export default function Hero({ imageLight, imageDark, imageAlt, whatsappNumber }
         />
       </div>
 
-      {/* Multi-stop overlay: strong from the left where the copy sits, fading toward the image on the right. */}
+      {/* Multi-stop overlay: strong from the left where the copy sits, fading toward the image on the right.
+          Stronger on mobile (text sits bottom-aligned there, needs more contrast) — back to the original
+          subtle version at sm and up. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/9 via-obsidian-950/7 to-obsidian-950/1"
+        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/80 via-obsidian-950/50 to-obsidian-950/12 sm:from-obsidian-950/9 sm:via-obsidian-950/7 sm:to-obsidian-950/1"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/8 via-transparent to-obsidian-950/2"
+        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/80 via-transparent to-obsidian-950/21 sm:from-obsidian-950/8 sm:to-obsidian-950/2"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pt-32 pb-16 sm:px-6 sm:pt-36 lg:px-8">
+      <div className="relative mx-auto w-full max-w-7xl translate-y-[5%] px-4 pt-32 pb-16 sm:translate-y-0 sm:px-6 sm:pt-36 lg:px-8">
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
