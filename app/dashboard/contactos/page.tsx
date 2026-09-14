@@ -35,6 +35,11 @@ export default async function ContactsPage() {
                 <p className="mt-0.5 truncate text-sm text-ink-400">
                   {contact.email} · {contact.phone}
                 </p>
+                {contact.vehicleOfInterest && (
+                  <p className="mt-1 truncate text-xs text-champagne-400">
+                    {contact.vehicleOfInterest}
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <span className="text-xs text-ink-600">{formatDate(contact.createdAt)}</span>

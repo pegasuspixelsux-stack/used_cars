@@ -1,20 +1,8 @@
 /**
- * Firestore document shapes for the admin dashboard. Kept separate from
- * lib/types.ts (the public marketing site's static Vehicle type) since the
- * dashboard manages its own Firestore-backed inventory — the two aren't
- * wired together yet. See DASHBOARD_SETUP.md.
+ * Firestore document shapes for the admin dashboard that aren't cars —
+ * the car shape itself is lib/types.ts's PublicCar, shared with the public
+ * site since /dashboard/inventario manages the same `cars` collection.
  */
-
-export interface DashboardVehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  priceUsd: number;
-  imageUrl?: string;
-  imagePath?: string;
-  createdAt: number; // epoch ms
-}
 
 export interface ContactLead {
   id: string;

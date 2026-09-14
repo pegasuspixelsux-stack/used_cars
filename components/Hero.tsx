@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { FileCheck, KeyRound, ShieldCheck, BadgeCheck } from "lucide-react";
-import type { Vehicle } from "@/lib/types";
 
 const STATS = [
   { icon: FileCheck, label: "Registro local incluido" },
@@ -12,15 +11,20 @@ const STATS = [
   { icon: BadgeCheck, label: "Precio transparente" },
 ];
 
-export default function Hero({ vehicle }: { vehicle: Vehicle }) {
+interface HeroProps {
+  imageSrc: string;
+  imageAlt: string;
+}
+
+export default function Hero({ imageSrc, imageAlt }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <section className="relative flex min-h-[88vh] w-full items-center overflow-hidden bg-obsidian-950">
       <div className="absolute inset-0">
         <Image
-          src={vehicle.image.src}
-          alt={vehicle.image.alt}
+          src={imageSrc}
+          alt={imageAlt}
           fill
           sizes="100vw"
           className="object-cover object-center"

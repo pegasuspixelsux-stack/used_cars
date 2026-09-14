@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatPriceUsd } from "@/lib/format";
+import { monthlyPayment } from "@/lib/finance";
 
 const TERMS = [6, 12, 24, 36, 48, 60];
 
@@ -11,14 +12,6 @@ const PRICE_STEP = 500;
 const RATE_MIN = 0;
 const RATE_MAX = 18;
 const RATE_STEP = 0.1;
-
-function monthlyPayment(principal: number, annualRatePct: number, termMonths: number): number {
-  if (principal <= 0) return 0;
-  const monthlyRate = annualRatePct / 100 / 12;
-  if (monthlyRate === 0) return principal / termMonths;
-  const factor = (1 + monthlyRate) ** termMonths;
-  return (principal * monthlyRate * factor) / (factor - 1);
-}
 
 export default function FinancingCalculator() {
   const [price, setPrice] = useState(95000);

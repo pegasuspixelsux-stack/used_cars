@@ -1,8 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import CarGrid from "./CarGrid";
-import type { Vehicle } from "@/lib/types";
+import type { PublicCar } from "@/lib/types";
 
-export default function Inventory({ vehicles }: { vehicles: Vehicle[] }) {
+export default function Inventory({ cars }: { cars: PublicCar[] }) {
   return (
     <section id="inventory" className="py-24 sm:py-32">
       <div className="mx-auto max-w-[1400px] px-6 sm:px-10 lg:px-16">
@@ -29,7 +29,14 @@ export default function Inventory({ vehicles }: { vehicles: Vehicle[] }) {
         </div>
 
         <div className="mt-12">
-          <CarGrid vehicles={vehicles} />
+          {cars.length > 0 ? (
+            <CarGrid cars={cars} />
+          ) : (
+            <p className="rounded-3xl border border-hairline bg-obsidian-900 p-10 text-center text-ink-400">
+              Estamos actualizando el inventario. Escríbanos y le avisamos en
+              cuanto haya autos disponibles.
+            </p>
+          )}
         </div>
       </div>
     </section>

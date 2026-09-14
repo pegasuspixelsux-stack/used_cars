@@ -16,10 +16,15 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // Vehicles are only ever written/read by the dashboard through the
-    // Admin SDK (server-side). No client-side access needed.
-    match /vehicles/{vehicleId} {
-      allow read, write: if false;
+    // Public inventory. Anyone can read (the marketing site and car detail
+    // pages need it); only a signed-in admin can create/update — there's no
+    // public sign-up, so request.auth != null means "an admin is logged in".
+    // Deletes go through the dashboard's Server Action (Admin SDK, bypasses
+    // this file entirely) rather than a client-side rule.
+    match /cars/{carId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
     }
 
     // Default deny for anything else.
