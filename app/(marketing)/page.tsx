@@ -32,7 +32,12 @@ export default async function Home() {
 
   return (
     <>
-      <Hero imageLight={heroImageLight} imageDark={heroImageDark} imageAlt={heroAlt} />
+      <Hero
+        imageLight={heroImageLight}
+        imageDark={heroImageDark}
+        imageAlt={heroAlt}
+        whatsappNumber={settings.whatsappNumber}
+      />
       {settings.showHeroSearch && <HeroFilterBar cars={cars} />}
       <Inventory cars={cars.slice(0, 6)} />
       <Advantages />

@@ -54,7 +54,7 @@ export default function HeroFilterBar({ cars }: { cars: PublicCar[] }) {
   }
 
   return (
-    <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 lg:-translate-y-1/4">
+    <div className="relative z-20 mx-auto w-full max-w-7xl -translate-y-[20%] px-4 sm:px-6 lg:px-8 lg:-translate-y-1/4">
       <div className="rounded-2xl border border-hairline bg-obsidian-900/90 shadow-2xl backdrop-blur-xl">
         <button
           type="button"

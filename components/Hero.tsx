@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { FileCheck, KeyRound } from "lucide-react";
+import WhatsAppLeadModal from "./WhatsAppLeadModal";
 
 const STATS = [
   { icon: FileCheck, label: "Registro local incluido" },
@@ -16,11 +17,13 @@ interface HeroProps {
   imageLight: string;
   imageDark: string;
   imageAlt: string;
+  whatsappNumber: string;
 }
 
-export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
+export default function Hero({ imageLight, imageDark, imageAlt, whatsappNumber }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  const [leadModalOpen, setLeadModalOpen] = useState(false);
   const { resolvedTheme } = useTheme();
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration guard
@@ -72,19 +75,20 @@ export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
             confianza de un concesionario que conoce el mercado local.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <a
               href="#inventory"
-              className="inline-flex items-center rounded-full bg-champagne-400 px-6 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97]"
+              className="flex w-full items-center justify-center rounded-full bg-champagne-400 px-6 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] sm:inline-flex sm:w-auto"
             >
               Ver inventario
             </a>
-            <a
-              href="#contact"
-              className="inline-flex items-center rounded-full border border-overlay-text/30 px-6 py-3.5 text-[0.9375rem] font-medium text-overlay-text transition-colors duration-200 hover:bg-overlay-text/10 active:scale-[0.97]"
+            <button
+              type="button"
+              onClick={() => setLeadModalOpen(true)}
+              className="flex w-full items-center justify-center rounded-full border border-overlay-text/30 px-6 py-3.5 text-[0.9375rem] font-medium text-overlay-text transition-colors duration-200 hover:bg-overlay-text/10 active:scale-[0.97] sm:inline-flex sm:w-auto"
             >
               Solicitar cotización
-            </a>
+            </button>
           </div>
         </motion.div>
 
@@ -92,7 +96,7 @@ export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4"
+          className="hidden gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4"
         >
           {STATS.map(({ icon: Icon, label }) => (
             <li
@@ -105,6 +109,12 @@ export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
           ))}
         </motion.ul>
       </div>
+
+      <WhatsAppLeadModal
+        open={leadModalOpen}
+        onClose={() => setLeadModalOpen(false)}
+        whatsappNumber={whatsappNumber}
+      />
     </section>
   );
 }

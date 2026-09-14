@@ -12,7 +12,7 @@ export default async function MarketingLayout({ children }: { children: ReactNod
 
   return (
     <>
-      <Navbar logoText={settings.logoText} />
+      <Navbar logoText={settings.logoText} whatsappNumber={settings.whatsappNumber} />
       <main>{children}</main>
       <Footer settings={settings} />
     </>
