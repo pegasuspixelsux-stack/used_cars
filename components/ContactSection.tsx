@@ -38,7 +38,7 @@ export default function ContactSection() {
       </div>
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-obsidian-950/60 via-obsidian-950/40 to-obsidian-950/60"
+        className="absolute inset-0 bg-gradient-to-b from-obsidian-950/0 via-obsidian-950/0 to-obsidian-950/0"
       />
 
       <div className="relative z-10 mx-auto grid max-w-[1400px] gap-12 px-6 sm:px-10 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-16">
