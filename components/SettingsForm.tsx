@@ -35,6 +35,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [phone, setPhone] = useState(settings.phone);
   const [address, setAddress] = useState(settings.address);
   const [hours, setHours] = useState(settings.hours);
+  const [showHeroSearch, setShowHeroSearch] = useState(settings.showHeroSearch);
 
   const settingsUrl: Record<ImageGroup, Record<ImageTheme, string>> = {
     hero: { light: settings.heroImageLight, dark: settings.heroImageDark },
@@ -167,6 +168,7 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
           contactImageDark: contact.dark,
           contactImageLightPath: contactPaths.light,
           contactImageDarkPath: contactPaths.dark,
+          showHeroSearch,
           updatedAt: serverTimestamp(),
         },
         { merge: true },
@@ -205,6 +207,16 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
             onSelect={(file) => handleImageFile("hero", "light", file)}
           />
         </div>
+
+        <label className="mt-5 flex items-center gap-2.5 text-sm text-ink-300">
+          <input
+            type="checkbox"
+            checked={showHeroSearch}
+            onChange={(event) => setShowHeroSearch(event.target.checked)}
+            className="h-4 w-4 rounded border-hairline-strong bg-obsidian-950 accent-champagne-400"
+          />
+          Mostrar barra de búsqueda (año, marca, modelo) sobre la portada
+        </label>
       </section>
 
       <section>

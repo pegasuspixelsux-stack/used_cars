@@ -61,13 +61,13 @@ export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-3xl"
         >
-          <h1 className="text-[2rem] font-semibold leading-[1.1] tracking-[-0.02em] text-white sm:text-6xl sm:leading-[1.05] lg:text-[4rem]">
+          <h1 className="text-[2rem] font-semibold leading-[1.1] tracking-[-0.02em] text-overlay-text sm:text-6xl sm:leading-[1.05] lg:text-[4rem]">
             Autos certificados,
             <br />
             listos para conducir.
           </h1>
 
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-white/80">
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-overlay-text/80">
             Precio transparente, inspección mecánica completa y la
             confianza de un concesionario que conoce el mercado local.
           </p>
@@ -81,7 +81,7 @@ export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center rounded-full border border-white/30 px-6 py-3.5 text-[0.9375rem] font-medium text-white transition-colors duration-200 hover:bg-white/10 active:scale-[0.97]"
+              className="inline-flex items-center rounded-full border border-overlay-text/30 px-6 py-3.5 text-[0.9375rem] font-medium text-overlay-text transition-colors duration-200 hover:bg-overlay-text/10 active:scale-[0.97]"
             >
               Solicitar cotización
             </a>

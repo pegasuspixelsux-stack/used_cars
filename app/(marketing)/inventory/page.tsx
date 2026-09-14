@@ -9,8 +9,21 @@ export const metadata = {
 
 export const revalidate = 60;
 
-export default async function InventoryPage() {
+export default async function InventoryPage(props: PageProps<"/inventory">) {
+  const searchParams = await props.searchParams;
   const cars = await getPublicInventory();
+
+  // Seeded by components/HeroFilterBar.tsx's search, which routes here with
+  // these as query params.
+  const param = (key: string) => {
+    const value = searchParams[key];
+    return typeof value === "string" && value ? value : undefined;
+  };
+  const initialFilters = {
+    year: param("year"),
+    make: param("make"),
+    model: param("model"),
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 pt-28 pb-12 sm:px-6 sm:pt-32 sm:pb-16 lg:px-8">
@@ -25,7 +38,7 @@ export default async function InventoryPage() {
       </div>
 
       {cars.length > 0 ? (
-        <InventoryBrowser cars={cars} />
+        <InventoryBrowser cars={cars} initialFilters={initialFilters} />
       ) : (
         <p className="rounded-3xl border border-hairline bg-obsidian-900 p-10 text-center text-ink-400">
           Estamos actualizando el inventario. Escríbanos y le avisamos en

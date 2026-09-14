@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import HeroFilterBar from "@/components/HeroFilterBar";
 import Inventory from "@/components/Inventory";
 import Advantages from "@/components/Advantages";
 import InteractiveTools from "@/components/InteractiveTools";
@@ -32,6 +33,7 @@ export default async function Home() {
   return (
     <>
       <Hero imageLight={heroImageLight} imageDark={heroImageDark} imageAlt={heroAlt} />
+      {settings.showHeroSearch && <HeroFilterBar cars={cars} />}
       <Inventory cars={cars.slice(0, 6)} />
       <Advantages />
       <InteractiveTools />
