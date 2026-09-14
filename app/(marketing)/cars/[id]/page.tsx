@@ -5,6 +5,7 @@ import CarGallery from "@/components/CarGallery";
 import VehicleInquiryForm from "@/components/VehicleInquiryForm";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getPublicCarById } from "@/lib/public-inventory";
+import { getSiteSettings } from "@/lib/site-settings";
 import { formatMileage, formatPriceUsd } from "@/lib/format";
 import { estimateMonthlyPayment, FINANCING_DISCLAIMER } from "@/lib/finance";
 
@@ -22,7 +23,7 @@ export async function generateMetadata(props: PageProps<"/cars/[id]">) {
 
 export default async function CarDetailPage(props: PageProps<"/cars/[id]">) {
   const { id } = await props.params;
-  const car = await getPublicCarById(id);
+  const [car, settings] = await Promise.all([getPublicCarById(id), getSiteSettings()]);
   if (!car) notFound();
 
   const images = car.images?.length ? car.images : car.image ? [car.image] : [];
@@ -102,7 +103,7 @@ export default async function CarDetailPage(props: PageProps<"/cars/[id]">) {
       </ScrollReveal>
 
       <ScrollReveal className="mt-14">
-        <VehicleInquiryForm car={car} />
+        <VehicleInquiryForm car={car} whatsappNumber={settings.whatsappNumber} />
       </ScrollReveal>
     </div>
   );

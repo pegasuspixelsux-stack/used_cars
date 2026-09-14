@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { splitLogoText } from "@/lib/format";
 import ThemeToggle from "./ThemeToggle";
+import WhatsAppLeadModal from "./WhatsAppLeadModal";
 
 const NAV_LINKS = [
   { label: "Inicio", href: "/" },
@@ -16,9 +17,10 @@ const NAV_LINKS = [
   { label: "Contacto", href: "#contact" },
 ];
 
-export default function Navbar({ logoText }: { logoText: string }) {
+export default function Navbar({ logoText, whatsappNumber }: { logoText: string; whatsappNumber: string }) {
   const [logoFirst, logoRest] = splitLogoText(logoText);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [leadModalOpen, setLeadModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
@@ -65,12 +67,13 @@ export default function Navbar({ logoText }: { logoText: string }) {
 
         <div className="hidden items-center gap-4 md:flex">
           <ThemeToggle />
-          <a
-            href="#contact"
+          <button
+            type="button"
+            onClick={() => setLeadModalOpen(true)}
             className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-black transition-transform duration-150 ease-out hover:bg-champagne-300 active:scale-[0.97]"
           >
             Coordinar una consulta
-          </a>
+          </button>
         </div>
 
         <div className="flex items-center gap-3 md:hidden">
@@ -109,18 +112,27 @@ export default function Navbar({ logoText }: { logoText: string }) {
                 </li>
               ))}
               <li className="pt-2">
-                <a
-                  href="#contact"
-                  onClick={() => setMobileOpen(false)}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setLeadModalOpen(true);
+                  }}
                   className="inline-flex items-center rounded-full bg-champagne-400 px-5 py-2.5 text-sm font-medium text-black active:scale-[0.97]"
                 >
                   Coordinar una consulta
-                </a>
+                </button>
               </li>
             </ul>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <WhatsAppLeadModal
+        open={leadModalOpen}
+        onClose={() => setLeadModalOpen(false)}
+        whatsappNumber={whatsappNumber}
+      />
     </motion.header>
   );
 }
