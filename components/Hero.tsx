@@ -52,11 +52,11 @@ export default function Hero({ imageLight, imageDark, imageAlt, whatsappNumber }
           subtle version at sm and up. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/80 via-obsidian-950/50 to-obsidian-950/12 sm:from-obsidian-950/9 sm:via-obsidian-950/7 sm:to-obsidian-950/1"
+        className="absolute inset-0 bg-gradient-to-r from-obsidian-950/90 via-obsidian-950/56 to-obsidian-950/14 sm:from-obsidian-950/9 sm:via-obsidian-950/7 sm:to-obsidian-950/1"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/80 via-transparent to-obsidian-950/21 sm:from-obsidian-950/8 sm:to-obsidian-950/2"
+        className="absolute inset-0 bg-gradient-to-t from-obsidian-950/90 via-transparent to-obsidian-950/24 sm:from-obsidian-950/8 sm:to-obsidian-950/2"
       />
 
       <div className="relative mx-auto w-full max-w-7xl translate-y-[5%] px-4 pt-32 pb-16 sm:translate-y-0 sm:px-6 sm:pt-36 lg:px-8">
