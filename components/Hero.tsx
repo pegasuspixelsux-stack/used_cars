@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTheme } from "next-themes";
 import { FileCheck, KeyRound, ShieldCheck, BadgeCheck } from "lucide-react";
 
 const STATS = [
@@ -12,12 +14,24 @@ const STATS = [
 ];
 
 interface HeroProps {
-  imageSrc: string;
+  /** Background per theme — set in app/dashboard/settings/page.tsx. */
+  imageLight: string;
+  imageDark: string;
   imageAlt: string;
 }
 
-export default function Hero({ imageSrc, imageAlt }: HeroProps) {
+export default function Hero({ imageLight, imageDark, imageAlt }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration guard
+  useEffect(() => setMounted(true), []);
+  // Theme resolves client-side only (next-themes) — default to the dark
+  // image before mount, matching this site's default theme, same guard
+  // Navbar.tsx uses for its own theme-dependent styling.
+  const isLight = mounted && resolvedTheme === "light";
+  const imageSrc = (isLight ? imageLight : imageDark) || imageDark || imageLight;
 
   return (
     <section className="relative flex min-h-[88vh] w-full items-center overflow-hidden bg-obsidian-950">
@@ -42,7 +56,7 @@ export default function Hero({ imageSrc, imageAlt }: HeroProps) {
         className="absolute inset-0 bg-gradient-to-t from-obsidian-950/8 via-transparent to-obsidian-950/2"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pt-28 pb-16 sm:px-6 sm:pt-32 lg:px-8">
+      <div className="relative mx-auto w-full max-w-7xl px-4 pt-32 pb-16 sm:px-6 sm:pt-36 lg:px-8">
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -80,7 +94,7 @@ export default function Hero({ imageSrc, imageAlt }: HeroProps) {
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-16 grid grid-cols-2 gap-3 sm:mt-20 sm:flex sm:flex-wrap sm:gap-4"
+          className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:flex sm:flex-wrap sm:gap-4"
         >
           {STATS.map(({ icon: Icon, label }) => (
             <li

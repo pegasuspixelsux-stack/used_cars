@@ -9,6 +9,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Check, ImagePlus, Loader2, Plus, X } from "lucide-react";
 import { getFirebaseAuth, getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
 import { cn } from "@/lib/format";
+import PillToggle from "./PillToggle";
 
 type Transmission = "Manual" | "Automática";
 type FuelType = "Nafta" | "Diesel" | "Híbrido" | "Eléctrico";
@@ -433,22 +434,5 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
       <label className="mb-1.5 block text-sm text-ink-400">{label}</label>
       {children}
     </div>
-  );
-}
-
-function PillToggle({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={
-        active
-          ? "rounded-full bg-champagne-400 px-3.5 py-1.5 text-xs font-medium text-black transition-transform active:scale-[0.97]"
-          : "rounded-full border border-hairline px-3.5 py-1.5 text-xs text-ink-300 transition-colors hover:border-hairline-strong hover:text-ink-100 active:scale-[0.97]"
-      }
-    >
-      {label}
-    </button>
   );
 }

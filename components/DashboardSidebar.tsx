@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Car, Users, Mail } from "lucide-react";
+import { LayoutDashboard, Car, Users, Mail, Settings } from "lucide-react";
 import { cn } from "@/lib/format";
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/inventario", label: "Inventario de Autos", icon: Car },
   { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
   { href: "/dashboard/contactos", label: "Contactos", icon: Mail },
+  { href: "/dashboard/settings", label: "Configuración", icon: Settings },
 ];
 
 export default function DashboardSidebar() {

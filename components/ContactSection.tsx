@@ -60,14 +60,15 @@ export default function ContactSection() {
 
       <div className="relative z-10 mx-auto grid max-w-[1400px] gap-12 px-6 sm:px-10 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-16">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-ink-100 sm:text-4xl">
-            ¿Listo para encontrar su próximo auto?
-            <br />
-            Hablemos.
+          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            No dejes que conducir el auto que querés se quede solo en un
+            sueño.
           </h2>
-          <p className="mt-4 max-w-sm text-ink-300">
-            Cuéntenos qué está buscando y le respondemos dentro de un día
-            hábil.
+          <p className="mt-5 max-w-md text-white/80">
+            Ya tenés el dinero para la seña o entrega inicial. Con un pequeño
+            esfuerzo y una cuota mensual accesible, vas a estar manejando el
+            auto que realmente querés y merecés. Comprá el vehículo que te
+            gusta manejar, no te conformes con menos.
           </p>
         </div>
 

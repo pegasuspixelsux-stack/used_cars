@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { SESSION_COOKIE_NAME, verifySessionCookie } from "@/lib/session";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import LogoutButton from "@/components/LogoutButton";
@@ -16,13 +17,22 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="flex min-h-screen bg-obsidian-950">
-      <aside className="hidden w-64 shrink-0 border-r border-hairline p-6 md:flex md:flex-col">
-        <Link href="/" className="mb-10 flex items-baseline gap-1.5 leading-none">
+      <aside className="hidden w-64 shrink-0 border-r border-hairline md:sticky md:top-0 md:flex md:h-screen md:flex-col">
+        <Link href="/" className="shrink-0 px-6 pt-6 flex items-baseline gap-1.5 leading-none">
           <span className="text-lg font-semibold tracking-tight text-ink-100">AERO</span>
           <span className="text-lg font-normal tracking-tight text-ink-400">MOTORS</span>
         </Link>
-        <DashboardSidebar />
-        <div className="mt-auto">
+        <div className="mt-10 flex-1 overflow-y-auto px-6">
+          <DashboardSidebar />
+        </div>
+        <div className="shrink-0 px-6 pb-6">
+          <Link
+            href="/"
+            className="mb-4 flex items-center gap-2 text-sm text-ink-400 transition-colors hover:text-ink-100"
+          >
+            <ArrowLeft size={15} />
+            Volver al sitio
+          </Link>
           <p className="mb-3 truncate text-xs text-ink-600">{claims.email}</p>
           <LogoutButton />
         </div>

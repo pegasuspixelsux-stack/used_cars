@@ -6,13 +6,7 @@ import VehicleInquiryForm from "@/components/VehicleInquiryForm";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getPublicCarById } from "@/lib/public-inventory";
 import { formatMileage, formatPriceUsd } from "@/lib/format";
-import { monthlyPayment } from "@/lib/finance";
-
-// Terms match the ones quoted in the financing disclaimer below — keep them
-// in sync if the dealership's standard offer ever changes.
-const DOWN_PAYMENT_PCT = 0.3;
-const TERM_MONTHS = 60;
-const ANNUAL_RATE_PCT = 6.9;
+import { estimateMonthlyPayment, FINANCING_DISCLAIMER } from "@/lib/finance";
 
 export const revalidate = 60;
 
@@ -32,8 +26,7 @@ export default async function CarDetailPage(props: PageProps<"/cars/[id]">) {
   if (!car) notFound();
 
   const images = car.images?.length ? car.images : car.image ? [car.image] : [];
-  const principal = car.price * (1 - DOWN_PAYMENT_PCT);
-  const estimatedPayment = monthlyPayment(principal, ANNUAL_RATE_PCT, TERM_MONTHS);
+  const estimatedPayment = estimateMonthlyPayment(car.price);
 
   const specs = [
     { icon: Gauge, label: formatMileage(car.mileage) },
@@ -85,11 +78,7 @@ export default async function CarDetailPage(props: PageProps<"/cars/[id]">) {
           ))}
         </ul>
 
-        <p className="mt-4 text-xs leading-relaxed text-ink-600">
-          Precio basado en una entrega del {Math.round(DOWN_PAYMENT_PCT * 100)}% con un
-          financiamiento de {TERM_MONTHS} cuotas a una tasa anual del {ANNUAL_RATE_PCT}%,
-          sujeto a aprobación crediticia del banco.
-        </p>
+        <p className="mt-4 text-xs leading-relaxed text-ink-600">{FINANCING_DISCLAIMER}</p>
       </ScrollReveal>
 
       <ScrollReveal className="mt-14">

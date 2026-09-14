@@ -26,3 +26,30 @@ export interface PublicCar {
   features?: string[];
   description?: string;
 }
+
+/**
+ * Dealership-wide branding/contact/hours, edited from
+ * app/dashboard/settings/page.tsx and stored at Firestore's
+ * `settings/general` doc. Read by the public site (Navbar, Footer, Hero)
+ * so those details can change without a code deploy.
+ */
+export interface SiteSettings {
+  /** Single free-text brand name (e.g. "AERO MOTORS") — split on the first
+   *  space for the two-tone logo treatment; see lib/format.ts#splitLogoText. */
+  logoText: string;
+  /** Digits only, no "+" or spaces — ready to drop into a wa.me link. */
+  whatsappNumber: string;
+  phone: string;
+  address: string;
+  hours: string;
+  /** Storage download URLs for the homepage hero background, one per theme
+   *  — components/Hero.tsx switches between them based on the resolved
+   *  theme. Empty until the admin uploads one; the homepage falls back to
+   *  a featured car's photo, then a stock image, independently per theme. */
+  heroImageLight: string;
+  heroImageDark: string;
+  /** Storage paths matching the two URLs above, needed to delete the old
+   *  file when it's replaced. */
+  heroImageLightPath: string;
+  heroImageDarkPath: string;
+}

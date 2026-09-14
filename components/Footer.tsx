@@ -2,11 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Clock, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { splitLogoText } from "@/lib/format";
+import type { SiteSettings } from "@/lib/types";
 import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
-  { label: "Inventario", href: "#inventory" },
+  { label: "Inventario", href: "/inventory" },
   { label: "Financiación", href: "#tools" },
   { label: "Cotizar mi usado", href: "#tools" },
   { label: "Por qué elegirnos", href: "#why-us" },
@@ -18,15 +20,21 @@ const LEGAL_LINKS = [
   { label: "Términos de garantía", href: "#" },
 ];
 
-const CHANNELS = [
-  { icon: MapPin, label: "Ruta 10, Km 161, Punta del Este, Uruguay" },
-  { icon: Phone, label: "+598 4249 1122" },
-  { icon: MessageCircle, label: "+598 99 123 456 (WhatsApp)" },
-  { icon: Mail, label: "hola@aeromotors.uy" },
-];
+// Not part of app/dashboard/settings/page.tsx — kept as a fixed channel
+// alongside the dynamic ones below.
+const SUPPORT_EMAIL = "hola@aeromotors.uy";
 
-export default function Footer() {
+export default function Footer({ settings }: { settings: SiteSettings }) {
   const [subscribed, setSubscribed] = useState(false);
+  const [logoFirst, logoRest] = splitLogoText(settings.logoText);
+
+  const channels = [
+    { icon: MapPin, label: settings.address },
+    { icon: Phone, label: settings.phone },
+    { icon: MessageCircle, label: `+${settings.whatsappNumber} (WhatsApp)` },
+    { icon: Clock, label: settings.hours },
+    { icon: Mail, label: SUPPORT_EMAIL },
+  ].filter((channel) => channel.label.trim());
 
   function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,10 +46,10 @@ export default function Footer() {
       <div className="mx-auto max-w-[1400px] px-6 py-16 sm:px-10 sm:py-20 lg:px-16">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           <div>
-            <a href="#" className="flex items-baseline gap-1.5 leading-none">
-              <span className="text-lg font-semibold tracking-tight text-ink-100">AERO</span>
-              <span className="text-lg font-normal tracking-tight text-ink-400">MOTORS</span>
-            </a>
+            <Link href="/" className="flex items-baseline gap-1.5 leading-none">
+              <span className="text-lg font-semibold tracking-tight text-ink-100">{logoFirst}</span>
+              {logoRest && <span className="text-lg font-normal tracking-tight text-ink-400">{logoRest}</span>}
+            </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-400">
               Concesionario local de autos usados en Punta del Este, con
               inspección mecánica completa y total transparencia en cada
@@ -54,12 +62,12 @@ export default function Footer() {
             <ul className="mt-5 space-y-3">
               {NAV_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-ink-400 transition-colors hover:text-ink-100"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -68,7 +76,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-medium text-ink-100">Contacto</h3>
             <ul className="mt-5 space-y-3">
-              {CHANNELS.map(({ icon: Icon, label }) => (
+              {channels.map(({ icon: Icon, label }) => (
                 <li key={label} className="flex items-start gap-2.5 text-sm text-ink-400">
                   <Icon size={15} strokeWidth={1.75} className="mt-0.5 shrink-0 text-champagne-400" />
                   <span>{label}</span>
