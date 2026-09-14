@@ -41,9 +41,9 @@ export default function Footer() {
               <span className="text-lg font-normal tracking-tight text-ink-400">MOTORS</span>
             </a>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-400">
-              Seleccionamos y certificamos vehículos premium usados para
-              Punta del Este, con total transparencia desde la inspección
-              hasta la entrega.
+              Concesionario local de autos usados en Punta del Este, con
+              inspección mecánica completa y total transparencia en cada
+              venta.
             </p>
           </div>
 

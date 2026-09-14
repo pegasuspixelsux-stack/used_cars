@@ -1,4 +1,4 @@
-import { ShieldCheck, ReceiptText, Truck } from "lucide-react";
+import { ShieldCheck, ReceiptText, KeyRound } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
 
 const ADVANTAGES = [
@@ -15,10 +15,10 @@ const ADVANTAGES = [
       "El precio que ve es el precio que paga. Sin agregados de último momento ni gastos de gestoría sorpresa: cada costo está detallado desde el principio.",
   },
   {
-    icon: Truck,
-    title: "Entrega y registro llave en mano",
+    icon: KeyRound,
+    title: "Registro local y entrega inmediata",
     description:
-      "Nos encargamos del transporte, los trámites aduaneros y el registro en su nombre, y entregamos en cualquier punto de Uruguay, listo para andar el día que llega.",
+      "Nos encargamos de la documentación y el registro en su nombre. Coordine un test drive cuando quiera y lleve su auto el mismo día.",
   },
 ];
 

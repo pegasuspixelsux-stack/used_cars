@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { Users, BadgeCheck, Truck, ShieldCheck } from "lucide-react";
+import { FileCheck, KeyRound, ShieldCheck, BadgeCheck } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 
 const STATS = [
-  { icon: Users, label: "+500 clientes" },
-  { icon: BadgeCheck, label: "100% transparente" },
-  { icon: Truck, label: "Entrega en 20–30 días" },
-  { icon: ShieldCheck, label: "3 años de garantía" },
+  { icon: FileCheck, label: "Registro local incluido" },
+  { icon: KeyRound, label: "Test drive inmediato" },
+  { icon: ShieldCheck, label: "Inspección mecánica completa" },
+  { icon: BadgeCheck, label: "Precio transparente" },
 ];
 
 export default function Hero({ vehicle }: { vehicle: Vehicle }) {
@@ -46,14 +46,14 @@ export default function Hero({ vehicle }: { vehicle: Vehicle }) {
           className="max-w-xl"
         >
           <h1 className="text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.02em] text-ink-100 sm:text-6xl lg:text-[4rem]">
-            Vehículos premium,
+            Autos certificados,
             <br />
-            importados a su pedido.
+            listos para manejar hoy.
           </h1>
 
           <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-300">
-            Precio transparente, acompañamiento de punta a punta y garantía
-            en cada vehículo que llega a sus manos.
+            Precio transparente, inspección mecánica completa y la
+            confianza de un concesionario que conoce el mercado local.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">

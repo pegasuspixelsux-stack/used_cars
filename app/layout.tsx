@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aero Motors — Vehículos Premium Usados en Punta del Este",
+  title: "Aero Motors — Autos Usados de Confianza en Punta del Este",
   description:
-    "Aero Motors selecciona y certifica vehículos premium usados para Punta del Este y todo Uruguay — historial verificado, precio transparente y entrega llave en mano.",
+    "Aero Motors es un concesionario local en Punta del Este — inspección mecánica completa, precio transparente y registro local incluido en cada auto.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
