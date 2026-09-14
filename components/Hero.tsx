@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { FileCheck, KeyRound } from "lucide-react";
@@ -78,12 +79,12 @@ export default function Hero({ imageLight, imageDark, imageAlt, whatsappNumber }
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <a
-              href="#inventory"
+            <Link
+              href="/inventory"
               className="flex w-full items-center justify-center rounded-full bg-champagne-400 px-6 py-3.5 text-[0.9375rem] font-medium text-black transition-colors duration-200 hover:bg-champagne-300 active:scale-[0.97] sm:inline-flex sm:w-auto"
             >
               Ver inventario
-            </a>
+            </Link>
             <button
               type="button"
               onClick={() => setLeadModalOpen(true)}
