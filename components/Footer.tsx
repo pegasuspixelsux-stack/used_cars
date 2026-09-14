@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { ArrowRight, Check, MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
@@ -121,6 +122,14 @@ export default function Footer() {
                 </a>
               </li>
             ))}
+            <li>
+              <Link
+                href="/login"
+                className="text-sm text-ink-400 transition-colors hover:text-ink-100"
+              >
+                Iniciar sesión
+              </Link>
+            </li>
           </ul>
           <ThemeToggle label="Modo claro" />
         </div>
