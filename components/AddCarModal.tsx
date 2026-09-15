@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type DragEvent, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { Check, ImagePlus, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, Plus, X } from "lucide-react";
 import { getFirebaseAuth, getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
 import { cn } from "@/lib/format";
+import CarPhotoPositioner from "./CarPhotoPositioner";
 import PillToggle from "./PillToggle";
 
 type Transmission = "Manual" | "Automática";
@@ -31,10 +32,6 @@ const FEATURES = [
   "Sensores de Estacionamiento",
 ];
 
-function fileKey(file: File): string {
-  return `${file.name}-${file.size}-${file.lastModified}`;
-}
-
 export default function AddCarModal() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -48,9 +45,7 @@ export default function AddCarModal() {
   const [featured, setFeatured] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<Set<string>>(new Set());
   const [files, setFiles] = useState<File[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Firebase's client SDK restores a signed-in session from IndexedDB
@@ -76,30 +71,6 @@ export default function AddCarModal() {
       document.body.style.overflow = "";
     };
   }, [open]);
-
-  const previews = useMemo(
-    () => files.map((file) => ({ key: fileKey(file), file, url: URL.createObjectURL(file) })),
-    [files],
-  );
-
-  useEffect(() => {
-    return () => {
-      previews.forEach((preview) => URL.revokeObjectURL(preview.url));
-    };
-  }, [previews]);
-
-  function addFiles(incoming: FileList | null) {
-    if (!incoming) return;
-    const next = Array.from(incoming).filter((file) => file.type.startsWith("image/"));
-    setFiles((current) => {
-      const existingKeys = new Set(current.map(fileKey));
-      return [...current, ...next.filter((file) => !existingKeys.has(fileKey(file)))];
-    });
-  }
-
-  function removeFile(key: string) {
-    setFiles((current) => current.filter((file) => fileKey(file) !== key));
-  }
 
   function toggleFeature(feature: string) {
     setSelectedFeatures((current) => {
@@ -330,63 +301,7 @@ export default function AddCarModal() {
                 </label>
 
                 <div className="mt-5">
-                  <p className="mb-2 text-sm text-ink-400">Fotos</p>
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      setIsDragging(true);
-                    }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(event: DragEvent<HTMLDivElement>) => {
-                      event.preventDefault();
-                      setIsDragging(false);
-                      addFiles(event.dataTransfer.files);
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") fileInputRef.current?.click();
-                    }}
-                    className={cn(
-                      "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-obsidian-950 px-4 py-8 text-center transition-colors",
-                      isDragging ? "border-champagne-400" : "border-hairline-strong hover:border-champagne-400/60",
-                    )}
-                  >
-                    <ImagePlus size={22} strokeWidth={1.5} className="text-champagne-400" />
-                    <p className="text-sm text-ink-300">Arrastre las fotos aquí o haga clic para seleccionar</p>
-                    <p className="text-xs text-ink-600">Puede seleccionar varias imágenes</p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={(event) => addFiles(event.target.files)}
-                    />
-                  </div>
-
-                  {previews.length > 0 && (
-                    <ul className="mt-4 flex flex-wrap gap-3">
-                      {previews.map((preview) => (
-                        <li
-                          key={preview.key}
-                          className="group relative h-16 w-16 overflow-hidden rounded-lg border border-hairline"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={preview.url} alt={preview.file.name} className="h-full w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeFile(preview.key)}
-                            aria-label={`Quitar ${preview.file.name}`}
-                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-obsidian-950/80 text-ink-100 opacity-0 transition-opacity group-hover:opacity-100"
-                          >
-                            <X size={12} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <CarPhotoPositioner onPhotosChange={setFiles} />
                 </div>
 
                 {status === "error" && <p className="mt-4 text-sm text-red-400">{error}</p>}
