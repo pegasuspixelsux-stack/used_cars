@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import LoginForm from "@/components/LoginForm";
 
 export const metadata = {
@@ -27,6 +28,14 @@ export default function LoginPage() {
             <LoginForm />
           </Suspense>
         </div>
+
+        <Link
+          href="/"
+          className="mt-8 flex items-center justify-center gap-2 text-sm text-ink-400 transition-colors hover:text-ink-100"
+        >
+          <ArrowLeft size={15} />
+          Volver al sitio
+        </Link>
       </div>
     </div>
   );

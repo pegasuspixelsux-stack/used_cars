@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import AddCarModal from "@/components/AddCarModal";
 import DeleteCarButton from "@/components/DeleteCarButton";
 import EditCarModal from "@/components/EditCarModal";
+import ImportCarsModal from "@/components/ImportCarsModal";
 import { formatPriceUsd } from "@/lib/format";
 import { getAllVehicles } from "@/lib/dashboard-data";
 
@@ -33,7 +34,10 @@ export default async function InventoryPage(props: PageProps<"/dashboard/inventa
             sitio público.
           </p>
         </div>
-        <AddCarModal />
+        <div className="flex flex-wrap items-center gap-3">
+          <ImportCarsModal />
+          <AddCarModal />
+        </div>
       </div>
 
       <div className="mt-8 space-y-3">

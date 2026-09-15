@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { Check, ImagePlus, Loader2, Pencil, X } from "lucide-react";
+import { Check, Loader2, Pencil, X } from "lucide-react";
 import { getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
 import { cn } from "@/lib/format";
-import { compressImage } from "@/lib/image-compression";
 import type { PublicCar } from "@/lib/types";
+import CarPhotoPositioner, { type PhotoEntry } from "./CarPhotoPositioner";
 import PillToggle from "./PillToggle";
 
 type Transmission = "Manual" | "Automática";
@@ -18,7 +18,7 @@ type Status = "idle" | "uploading" | "saving" | "success" | "error";
 
 const TRANSMISSIONS: Transmission[] = ["Manual", "Automática"];
 const FUEL_TYPES: FuelType[] = ["Nafta", "Diesel", "Híbrido", "Eléctrico"];
-const MAX_PHOTOS = 10;
+const DIAGRAM_SLOTS = 10;
 
 const FEATURES = [
   "Aire Acondicionado",
@@ -38,12 +38,6 @@ interface ExistingPhoto {
   path?: string;
 }
 
-interface NewPhoto {
-  key: string;
-  file: File;
-  previewUrl: string;
-}
-
 function existingPhotosFrom(car: PublicCar): ExistingPhoto[] {
   if (car.images?.length) {
     return car.images.map((url, index) => ({ url, path: car.imagePaths?.[index] }));
@@ -52,12 +46,12 @@ function existingPhotosFrom(car: PublicCar): ExistingPhoto[] {
 }
 
 /**
- * Edits an existing car in place — same fields as AddCarModal, but seeded
- * from the current doc and saved with updateDoc instead of addDoc. Photo
- * position/category metadata from CarPhotoPositioner is discarded after
- * upload (see that component), so an existing car's photos are just a flat
- * list here too: kept as-is, individually removed, or added to (new files
- * get the same client-side compression as AddCarModal) up to MAX_PHOTOS.
+ * Edits an existing car in place — same fields and the same CarPhotoPositioner
+ * diagram as AddCarModal, but seeded from the current doc and saved with
+ * updateDoc instead of addDoc. The diagram only has 10 slots (the per-car
+ * cap for new uploads), so a car with more than 10 legacy photos — grandfathered
+ * in from before that cap existed — keeps the extras in a separate read-only
+ * strip below the diagram rather than silently dropping them on save.
  */
 export default function EditCarModal({ car }: { car: PublicCar }) {
   const router = useRouter();
@@ -70,26 +64,22 @@ export default function EditCarModal({ car }: { car: PublicCar }) {
   const [featured, setFeatured] = useState(car.featured);
   const [selectedFeatures, setSelectedFeatures] = useState<Set<string>>(new Set(car.features ?? []));
 
-  const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>(() => existingPhotosFrom(car));
-  const [removedPaths, setRemovedPaths] = useState<string[]>([]);
-  const [newPhotos, setNewPhotos] = useState<NewPhoto[]>([]);
-  const [compressing, setCompressing] = useState(false);
+  const [allExisting] = useState<ExistingPhoto[]>(() => existingPhotosFrom(car));
+  const [overflowPhotos, setOverflowPhotos] = useState<ExistingPhoto[]>(() => allExisting.slice(DIAGRAM_SLOTS));
+  const [photoEntries, setPhotoEntries] = useState<PhotoEntry[]>([]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    // Re-seed every time the modal opens, in case the row's data changed
-    // (another admin edited it) since this instance last closed.
+    // Re-seed every time the modal opens, in case another admin edited
+    // this row since this instance last closed.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- re-seeding on open, not a render-triggered loop
     setTransmission(car.transmission);
     setFuelType(car.fuelType);
     setFeatured(car.featured);
     setSelectedFeatures(new Set(car.features ?? []));
-    setExistingPhotos(existingPhotosFrom(car));
-    setRemovedPaths([]);
-    setNewPhotos([]);
+    setOverflowPhotos(allExisting.slice(DIAGRAM_SLOTS));
     setError("");
     setStatus("idle");
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-seed on open
@@ -109,47 +99,8 @@ export default function EditCarModal({ car }: { car: PublicCar }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-subscribe on open/close, matching AddCarModal's identical escape-key effect
   }, [open]);
 
-  useEffect(() => {
-    return () => {
-      newPhotos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
-    };
-  }, [newPhotos]);
-
-  const totalPhotoCount = existingPhotos.length + newPhotos.length;
-
-  function removeExistingPhoto(index: number) {
-    setExistingPhotos((current) => {
-      const target = current[index];
-      if (target?.path) setRemovedPaths((paths) => [...paths, target.path as string]);
-      return current.filter((_, i) => i !== index);
-    });
-  }
-
-  function removeNewPhoto(key: string) {
-    setNewPhotos((current) => current.filter((photo) => photo.key !== key));
-  }
-
-  async function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
-    const incoming = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith("image/"));
-    event.target.value = "";
-    if (!incoming.length) return;
-
-    const room = MAX_PHOTOS - totalPhotoCount;
-    if (room <= 0) return;
-
-    setCompressing(true);
-    try {
-      const accepted = incoming.slice(0, room);
-      const compressed = await Promise.all(accepted.map((file) => compressImage(file)));
-      const withPreviews = compressed.map((file, index) => ({
-        key: `${file.name}-${file.lastModified}-${index}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-      }));
-      setNewPhotos((current) => [...current, ...withPreviews]);
-    } finally {
-      setCompressing(false);
-    }
+  function removeOverflowPhoto(index: number) {
+    setOverflowPhotos((current) => current.filter((_, i) => i !== index));
   }
 
   function toggleFeature(feature: string) {
@@ -192,27 +143,36 @@ export default function EditCarModal({ car }: { car: PublicCar }) {
       setStatus("uploading");
       const storage = getFirebaseStorage();
 
+      const newEntries = photoEntries.filter((entry): entry is Extract<PhotoEntry, { type: "new" }> => entry.type === "new");
       const uploaded = await Promise.all(
-        newPhotos.map(async (photo) => {
-          const path = `cars/${crypto.randomUUID()}-${photo.file.name}`;
+        newEntries.map(async (entry) => {
+          const path = `cars/${crypto.randomUUID()}-${entry.file.name}`;
           const storageRef = ref(storage, path);
-          await uploadBytes(storageRef, photo.file);
+          await uploadBytes(storageRef, entry.file);
           const url = await getDownloadURL(storageRef);
           return { url, path };
         }),
       );
 
-      // Best-effort — a failed delete of a removed photo shouldn't block
-      // saving the rest of the edit.
+      let uploadIndex = 0;
+      const diagramPhotos: ExistingPhoto[] = photoEntries.map((entry) =>
+        entry.type === "existing" ? { url: entry.url, path: entry.path } : uploaded[uploadIndex++],
+      );
+
+      const finalPhotos = [...diagramPhotos, ...overflowPhotos];
+      const images = finalPhotos.map((photo) => photo.url);
+      const imagePaths = finalPhotos.map((photo) => photo.path).filter((path): path is string => Boolean(path));
+
+      // Anything from the original set that isn't in the final set (removed,
+      // or replaced by a new upload in the same slot) gets cleaned up —
+      // best-effort, a failed delete shouldn't block saving the rest.
+      const keptPaths = new Set(imagePaths);
+      const removedPaths = allExisting
+        .filter((photo) => photo.path && !keptPaths.has(photo.path))
+        .map((photo) => photo.path as string);
       await Promise.all(removedPaths.map((path) => deleteObject(ref(storage, path)).catch(() => {})));
 
       setStatus("saving");
-      const images = [...existingPhotos.map((photo) => photo.url), ...uploaded.map((item) => item.url)];
-      const imagePaths = [
-        ...existingPhotos.map((photo) => photo.path).filter((path): path is string => Boolean(path)),
-        ...uploaded.map((item) => item.path),
-      ];
-
       await updateDoc(doc(getFirebaseDb(), "cars", car.id), {
         make,
         model,
@@ -244,7 +204,6 @@ export default function EditCarModal({ car }: { car: PublicCar }) {
   }
 
   const isBusy = status === "uploading" || status === "saving";
-  const atPhotoLimit = totalPhotoCount >= MAX_PHOTOS;
 
   return (
     <>
@@ -379,76 +338,37 @@ export default function EditCarModal({ car }: { car: PublicCar }) {
                 </label>
 
                 <div className="mt-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm text-ink-400">Fotos</p>
-                    <p className="text-xs text-ink-600">
-                      {totalPhotoCount} de {MAX_PHOTOS}
-                    </p>
-                  </div>
+                  <CarPhotoPositioner
+                    initialPhotos={allExisting.slice(0, DIAGRAM_SLOTS)}
+                    onSlotsChange={setPhotoEntries}
+                  />
 
-                  {(existingPhotos.length > 0 || newPhotos.length > 0) && (
-                    <ul className="flex flex-wrap gap-3">
-                      {existingPhotos.map((photo, index) => (
-                        <li
-                          key={photo.url}
-                          className="group relative h-16 w-16 overflow-hidden rounded-lg border border-hairline"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={photo.url} alt="" className="h-full w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeExistingPhoto(index)}
-                            aria-label="Quitar foto"
-                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-obsidian-950/80 text-ink-100 opacity-0 transition-opacity group-hover:opacity-100"
+                  {overflowPhotos.length > 0 && (
+                    <div className="mt-4 border-t border-hairline pt-4">
+                      <p className="mb-2 text-xs text-ink-600">
+                        {overflowPhotos.length} {overflowPhotos.length === 1 ? "foto adicional" : "fotos adicionales"}{" "}
+                        (fuera del diagrama de 10 posiciones — se conservan igual)
+                      </p>
+                      <ul className="flex flex-wrap gap-3">
+                        {overflowPhotos.map((photo, index) => (
+                          <li
+                            key={photo.url}
+                            className="group relative h-16 w-16 overflow-hidden rounded-lg border border-hairline"
                           >
-                            <X size={12} />
-                          </button>
-                        </li>
-                      ))}
-                      {newPhotos.map((photo) => (
-                        <li
-                          key={photo.key}
-                          className="group relative h-16 w-16 overflow-hidden rounded-lg border border-champagne-400/50"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={photo.previewUrl} alt={photo.file.name} className="h-full w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeNewPhoto(photo.key)}
-                            aria-label={`Quitar ${photo.file.name}`}
-                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-obsidian-950/80 text-ink-100 opacity-0 transition-opacity group-hover:opacity-100"
-                          >
-                            <X size={12} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {!atPhotoLimit && (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={compressing}
-                      className={cn(
-                        "mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-hairline-strong bg-obsidian-950 px-4 py-4 text-sm text-ink-300 transition-colors hover:border-champagne-400/60 disabled:opacity-60",
-                      )}
-                    >
-                      {compressing ? (
-                        <Loader2 size={16} className="animate-spin" />
-                      ) : (
-                        <ImagePlus size={16} className="text-champagne-400" />
-                      )}
-                      {compressing ? "Procesando…" : "Agregar fotos"}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleFilesSelected}
-                      />
-                    </button>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={photo.url} alt="" className="h-full w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeOverflowPhoto(index)}
+                              aria-label="Quitar foto"
+                              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-obsidian-950/80 text-ink-100 opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              <X size={12} />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
 

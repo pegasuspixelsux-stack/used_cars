@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { Loader2, X } from "lucide-react";
 import { cn } from "@/lib/format";
 import { compressImage } from "@/lib/image-compression";
 
@@ -13,7 +13,14 @@ export interface PhotoSlot {
   y: number; // Posición porcentual Y sobre el diagrama SVG
   file?: File | null;
   previewUrl?: string | null;
+  /** Set when this slot's current photo is an untouched existing one
+   *  (EditCarModal) rather than a newly attached file — cleared as soon
+   *  as the slot is replaced or removed. */
+  existingUrl?: string | null;
+  existingPath?: string | null;
 }
+
+export type PhotoEntry = { type: "existing"; url: string; path?: string } | { type: "new"; file: File };
 
 // 10 posiciones — el máximo de fotos por auto, una por posición.
 const INITIAL_SLOTS: PhotoSlot[] = [
@@ -29,20 +36,49 @@ const INITIAL_SLOTS: PhotoSlot[] = [
   { id: 10, label: "Interior", category: "interior", x: 50, y: 45 },
 ];
 
-interface CarPhotoPositionerProps {
-  /** Fires with the ordered list of files from filled slots (slot order,
-   *  not upload order) whenever a photo is added, replaced, or removed —
-   *  slot labels/categories are a capture aid only and aren't persisted;
-   *  the caller ends up with the same flat File[] the old uploader gave.
-   *  Each file has already been resized/recompressed client-side (see
-   *  lib/image-compression.ts) before this fires. */
-  onPhotosChange?: (files: File[]) => void;
+function buildInitialSlots(initialPhotos: { url: string; path?: string }[]): PhotoSlot[] {
+  return INITIAL_SLOTS.map((slot, index) => {
+    const photo = initialPhotos[index];
+    if (!photo) return slot;
+    return { ...slot, previewUrl: photo.url, existingUrl: photo.url, existingPath: photo.path ?? null };
+  });
 }
 
-export default function CarPhotoPositioner({ onPhotosChange }: CarPhotoPositionerProps) {
-  const [slots, setSlots] = useState<PhotoSlot[]>(INITIAL_SLOTS);
+interface CarPhotoPositionerProps {
+  /** Fires with the ordered list of newly attached files from filled slots
+   *  (slot order, not upload order) whenever a photo is added, replaced,
+   *  or removed — used by AddCarModal, where every photo is new. Each
+   *  file has already been resized/recompressed client-side (see
+   *  lib/image-compression.ts) before this fires. */
+  onPhotosChange?: (files: File[]) => void;
+  /** Fires with every filled slot in slot order, distinguishing untouched
+   *  existing photos from newly attached files — used by EditCarModal,
+   *  which needs to know which of a car's current photos are still kept
+   *  (to preserve their URL/Storage path) vs. new uploads. */
+  onSlotsChange?: (entries: PhotoEntry[]) => void;
+  /** Seeds slots 1..N with a car's current photos (EditCarModal only) —
+   *  slot labels/categories are a capture aid discarded after upload, so
+   *  there's no real position to restore; this just fills the diagram in
+   *  order so existing photos are visible and editable from the start. */
+  initialPhotos?: { url: string; path?: string }[];
+}
+
+export default function CarPhotoPositioner({ onPhotosChange, onSlotsChange, initialPhotos = [] }: CarPhotoPositionerProps) {
+  const [slots, setSlots] = useState<PhotoSlot[]>(() => buildInitialSlots(initialPhotos));
   const [activeSlotId, setActiveSlotId] = useState<number | null>(1);
   const [processingSlotId, setProcessingSlotId] = useState<number | null>(null);
+
+  useEffect(() => {
+    onPhotosChange?.(slots.filter((slot) => slot.file).map((slot) => slot.file as File));
+
+    const entries: PhotoEntry[] = [];
+    for (const slot of slots) {
+      if (slot.file) entries.push({ type: "new", file: slot.file });
+      else if (slot.existingUrl) entries.push({ type: "existing", url: slot.existingUrl, path: slot.existingPath ?? undefined });
+    }
+    onSlotsChange?.(entries);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- callers pass stable setState setters; only slot content changes matter here
+  }, [slots]);
 
   async function handleFileChange(slotId: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -54,16 +90,26 @@ export default function CarPhotoPositioner({ onPhotosChange }: CarPhotoPositione
       // before it ever becomes a preview or an upload candidate.
       const processed = await compressImage(file);
       const previewUrl = URL.createObjectURL(processed);
-      setSlots((current) => {
-        const updated = current.map((slot) =>
-          slot.id === slotId ? { ...slot, file: processed, previewUrl } : slot,
-        );
-        onPhotosChange?.(updated.filter((slot) => slot.file).map((slot) => slot.file as File));
-        return updated;
-      });
+      setSlots((current) =>
+        current.map((slot) =>
+          slot.id === slotId
+            ? { ...slot, file: processed, previewUrl, existingUrl: null, existingPath: null }
+            : slot,
+        ),
+      );
     } finally {
       setProcessingSlotId(null);
     }
+  }
+
+  function handleRemoveSlot(slotId: number) {
+    setSlots((current) =>
+      current.map((slot) =>
+        slot.id === slotId
+          ? { ...slot, file: null, previewUrl: null, existingUrl: null, existingPath: null }
+          : slot,
+      ),
+    );
   }
 
   const activeSlot = slots.find((slot) => slot.id === activeSlotId);
@@ -167,6 +213,14 @@ export default function CarPhotoPositioner({ onPhotosChange }: CarPhotoPositione
                 <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-obsidian-800">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={activeSlot.previewUrl} alt={activeSlot.label} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSlot(activeSlot.id)}
+                    aria-label="Quitar foto"
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-obsidian-950/80 text-ink-100 backdrop-blur-md transition-colors hover:bg-red-500/80"
+                  >
+                    <X size={14} />
+                  </button>
                   <label className="absolute right-2 bottom-2 cursor-pointer rounded-lg bg-obsidian-950/80 px-3 py-1.5 text-xs font-medium text-ink-100 backdrop-blur-md hover:bg-obsidian-950">
                     Reemplazar
                     <input
