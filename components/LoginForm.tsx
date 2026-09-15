@@ -2,12 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { createSession } from "@/app/login/actions";
 
 type Status = "idle" | "loading" | "error";
+type ResetStatus = "idle" | "sending" | "sent" | "error";
 
 function mapAuthError(code: string): string {
   switch (code) {
@@ -32,6 +33,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [resetStatus, setResetStatus] = useState<ResetStatus>("idle");
+  const [resetError, setResetError] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +55,32 @@ export default function LoginForm() {
       setError(mapAuthError(code));
       setStatus("error");
     }
+  }
+
+  async function handleResetPassword() {
+    if (resetStatus === "sending") return;
+    if (!email) {
+      setResetStatus("error");
+      setResetError("Ingrese su correo arriba primero.");
+      return;
+    }
+
+    setResetStatus("sending");
+    setResetError("");
+    try {
+      await sendPasswordResetEmail(getFirebaseAuth(), email);
+    } catch (err) {
+      // Firebase's own error for "no user with this email" would let
+      // someone enumerate admin accounts — show the same success message
+      // either way, same as most login flows.
+      const code = err instanceof Error && "code" in err ? String((err as { code: string }).code) : "";
+      if (code === "auth/invalid-email") {
+        setResetStatus("error");
+        setResetError("Ingrese un correo válido.");
+        return;
+      }
+    }
+    setResetStatus("sent");
   }
 
   return (
@@ -89,6 +118,24 @@ export default function LoginForm() {
           />
         </div>
       </div>
+
+      <div className="mt-3 text-right">
+        <button
+          type="button"
+          onClick={handleResetPassword}
+          disabled={resetStatus === "sending"}
+          className="text-sm text-ink-400 underline-offset-2 transition-colors hover:text-champagne-400 hover:underline disabled:opacity-60"
+        >
+          {resetStatus === "sending" ? "Enviando…" : "¿Olvidó su contraseña?"}
+        </button>
+      </div>
+
+      {resetStatus === "sent" && (
+        <p className="mt-2 text-sm text-emerald-500">
+          Si el correo existe, le enviamos un enlace para restablecer la contraseña.
+        </p>
+      )}
+      {resetStatus === "error" && <p className="mt-2 text-sm text-red-400">{resetError}</p>}
 
       {status === "error" && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
