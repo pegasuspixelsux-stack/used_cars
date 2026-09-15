@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SESSION_COOKIE_NAME, verifySessionCookie } from "@/lib/session";
+import DashboardMobileNav from "@/components/DashboardMobileNav";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -41,11 +42,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-hairline px-6 py-4 md:hidden">
           <span className="text-sm font-medium text-ink-100">AERO MOTORS</span>
-          <LogoutButton />
+          <DashboardMobileNav email={claims.email} />
         </header>
-        <div className="border-b border-hairline px-6 py-3 md:hidden">
-          <DashboardSidebar />
-        </div>
 
         <main className="flex-1 p-6 sm:p-10">{children}</main>
       </div>
